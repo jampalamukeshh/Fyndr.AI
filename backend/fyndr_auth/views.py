@@ -215,6 +215,17 @@ class ChatConversationDetailView(APIView):
         except Exception as e:
             return Response({'detail': f'Failed to delete: {str(e)}'}, status=500)
 
+    def patch(self, request, conversation_id, *args, **kwargs):
+        conv = ChatConversation.objects.filter(id=conversation_id, user=request.user).first()
+        if not conv:
+            return Response({'detail': 'Conversation not found'}, status=404)
+        title = (request.data.get('title') or '').strip()
+        if not title:
+            return Response({'detail': 'title is required'}, status=400)
+        conv.title = title
+        conv.save(update_fields=['title', 'updated_at'])
+        return Response({'id': conv.id, 'title': conv.title})
+
 # Profile view for authenticated user
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]

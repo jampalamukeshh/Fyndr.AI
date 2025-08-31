@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'jobapplier',  # Job application automation
     'jobmatcher',  # AI-powered job matching and preparation
     'jobtracker',  # Application status tracking and analytics
+    'resumebuilder',  # Resume builder app
     'corsheaders',
 ]
 

@@ -5,7 +5,7 @@ import Select from 'components/ui/Select';
 
 const ConversationExport = ({ conversation, onExport, className = '' }) => {
   const [isExporting, setIsExporting] = useState(false);
-  const [exportFormat, setExportFormat] = useState('pdf');
+  const [exportFormat, setExportFormat] = useState('txt');
   const [showExportModal, setShowExportModal] = useState(false);
 
   const exportFormats = [
@@ -17,7 +17,7 @@ const ConversationExport = ({ conversation, onExport, className = '' }) => {
 
   const handleExport = async () => {
     setIsExporting(true);
-    
+
     try {
       const exportData = {
         conversationId: conversation.id,
@@ -26,7 +26,7 @@ const ConversationExport = ({ conversation, onExport, className = '' }) => {
         timestamp: new Date().toISOString(),
         messages: conversation.messages
       };
-      
+
       await onExport(exportData);
       setShowExportModal(false);
     } catch (error) {
@@ -61,7 +61,7 @@ const ConversationExport = ({ conversation, onExport, className = '' }) => {
 
       {showExportModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 p-4">
-          <div className="absolute top-8 right-8 bg-white dark:bg-muted glassmorphic-card p-6 rounded-2xl max-w-md w-full shadow-lg">
+          <div className="absolute top-8 right-8 bg-white dark:bg-zinc-900 border border-white/10 p-6 rounded-2xl max-w-md w-full shadow-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-foreground">Export Conversation</h3>
               <Button
@@ -78,7 +78,7 @@ const ConversationExport = ({ conversation, onExport, className = '' }) => {
               <p className="text-sm text-muted-foreground mb-3">
                 Export "{conversation.title}" in your preferred format
               </p>
-              
+
               <Select
                 label="Export Format"
                 options={exportFormats}
@@ -87,7 +87,7 @@ const ConversationExport = ({ conversation, onExport, className = '' }) => {
               />
             </div>
 
-            <div className="glassmorphic-surface p-3 rounded-lg mb-4">
+            <div className="p-3 rounded-lg mb-4 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm border border-white/10">
               <div className="flex items-center space-x-2 mb-2">
                 <Icon name={getFormatIcon(exportFormat)} size={16} className="text-primary" />
                 <span className="text-sm font-medium text-foreground">

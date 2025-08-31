@@ -6,7 +6,7 @@ import Input from 'components/ui/Input';
 import LocationInput from 'components/ui/LocationInput';
 import { Checkbox } from 'components/ui/Checkbox';
 
-const EditingPanel = ({ resumeData, onDataChange, onSectionReorder }) => {
+const EditingPanel = ({ resumeData, onDataChange }) => {
   const [activeSection, setActiveSection] = useState('personal');
   const [draggedItem, setDraggedItem] = useState(null);
 
@@ -15,8 +15,11 @@ const EditingPanel = ({ resumeData, onDataChange, onSectionReorder }) => {
     { id: 'experience', label: 'Work Experience', icon: 'Briefcase', required: true },
     { id: 'education', label: 'Education', icon: 'GraduationCap', required: true },
     { id: 'skills', label: 'Skills', icon: 'Zap', required: false },
+    { id: 'projects', label: 'Projects', icon: 'FolderGit', required: false },
     { id: 'achievements', label: 'Achievements', icon: 'Award', required: false },
-    { id: 'certifications', label: 'Certifications', icon: 'Certificate', required: false }
+    { id: 'certifications', label: 'Certifications', icon: 'Certificate', required: false },
+    { id: 'links', label: 'Links', icon: 'Link', required: false },
+    { id: 'languages', label: 'Languages', icon: 'Globe', required: false }
   ];
 
   const handleInputChange = (section, field, value) => {
@@ -95,7 +98,7 @@ const EditingPanel = ({ resumeData, onDataChange, onSectionReorder }) => {
       <LocationInput
         label="Location"
         value={resumeData.personal?.location || ''}
-        onChange={(e) => handleInputChange('personal', 'location', e.target.value)}
+        onChange={(val) => handleInputChange('personal', 'location', val)}
       />
 
       <div>
@@ -332,6 +335,106 @@ const EditingPanel = ({ resumeData, onDataChange, onSectionReorder }) => {
     </div>
   );
 
+  const renderAchievementsSection = () => (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">Achievements (one per line)</label>
+        <textarea
+          value={(resumeData.achievements || []).join('\n')}
+          onChange={(e) => onDataChange({
+            ...resumeData,
+            achievements: e.target.value.split('\n').map(x => x.trim()).filter(Boolean)
+          })}
+          rows={5}
+          className="w-full px-3 py-2 bg-background border border-border rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+          placeholder="e.g., Increased conversion by 25%...\nWon company hackathon 2024..."
+        />
+      </div>
+    </div>
+  );
+
+  const renderCertificationsSection = () => (
+    <div className="space-y-6">
+      {(resumeData.certifications || []).map((cert, index) => (
+        <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-muted rounded-card border border-border">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-medium text-foreground">Certification {index + 1}</h4>
+            <Button variant="ghost" size="sm" onClick={() => removeArrayItem('certifications', index)}>
+              <Icon name="Trash2" size={16} />
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Name" type="text" value={cert.name || ''} onChange={(e) => handleArrayChange('certifications', index, 'name', e.target.value)} />
+            <Input label="Issuer" type="text" value={cert.issuer || ''} onChange={(e) => handleArrayChange('certifications', index, 'issuer', e.target.value)} />
+            <Input label="Year" type="number" value={cert.year || ''} onChange={(e) => handleArrayChange('certifications', index, 'year', e.target.value)} />
+            <Input label="Credential ID/URL" type="text" value={cert.credential || ''} onChange={(e) => handleArrayChange('certifications', index, 'credential', e.target.value)} />
+          </div>
+        </motion.div>
+      ))}
+      <Button variant="outline" onClick={() => addArrayItem('certifications', { name: '', issuer: '', year: '', credential: '' })} iconName="Plus" iconPosition="left" fullWidth>
+        Add Certification
+      </Button>
+    </div>
+  );
+
+  const renderProjectsSection = () => (
+    <div className="space-y-6">
+      {(resumeData.projects || []).map((prj, index) => (
+        <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-muted rounded-card border border-border">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-medium text-foreground">Project {index + 1}</h4>
+            <Button variant="ghost" size="sm" onClick={() => removeArrayItem('projects', index)}>
+              <Icon name="Trash2" size={16} />
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input label="Title" type="text" value={prj.title || ''} onChange={(e) => handleArrayChange('projects', index, 'title', e.target.value)} />
+              <Input label="Link" type="text" value={prj.link || ''} onChange={(e) => handleArrayChange('projects', index, 'link', e.target.value)} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input label="Tech Stack (comma-separated)" type="text" value={(prj.tech_stack || []).join(', ')} onChange={(e) => handleArrayChange('projects', index, 'tech_stack', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
+              <Input label="Domain" type="text" value={prj.domain || ''} onChange={(e) => handleArrayChange('projects', index, 'domain', e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Description</label>
+              <textarea value={prj.description || ''} onChange={(e) => handleArrayChange('projects', index, 'description', e.target.value)} rows={3} className="w-full px-3 py-2 bg-background border border-border rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
+            </div>
+          </div>
+        </motion.div>
+      ))}
+      <Button variant="outline" onClick={() => addArrayItem('projects', { title: '', link: '', description: '', tech_stack: [], domain: '' })} iconName="Plus" iconPosition="left" fullWidth>
+        Add Project
+      </Button>
+    </div>
+  );
+
+  const renderLinksSection = () => (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input label="LinkedIn URL" type="url" value={resumeData.links?.linkedin || ''} onChange={(e) => onDataChange({ ...resumeData, links: { ...(resumeData.links || {}), linkedin: e.target.value } })} />
+        <Input label="GitHub URL" type="url" value={resumeData.links?.github || ''} onChange={(e) => onDataChange({ ...resumeData, links: { ...(resumeData.links || {}), github: e.target.value } })} />
+        <Input label="Portfolio URL" type="url" value={resumeData.links?.portfolio || ''} onChange={(e) => onDataChange({ ...resumeData, links: { ...(resumeData.links || {}), portfolio: e.target.value } })} />
+        <Input label="Website URL" type="url" value={resumeData.links?.website || ''} onChange={(e) => onDataChange({ ...resumeData, links: { ...(resumeData.links || {}), website: e.target.value } })} />
+      </div>
+    </div>
+  );
+
+  const renderLanguagesSection = () => (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">Languages (comma-separated)</label>
+        <textarea
+          value={(resumeData.languages || []).join(', ')}
+          onChange={(e) => onDataChange({ ...resumeData, languages: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+          rows={3}
+          className="w-full px-3 py-2 bg-background border border-border rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+          placeholder="English, Hindi, Spanish..."
+        />
+      </div>
+    </div>
+  );
+
   const renderSection = () => {
     switch (activeSection) {
       case 'personal':
@@ -342,6 +445,16 @@ const EditingPanel = ({ resumeData, onDataChange, onSectionReorder }) => {
         return renderEducationSection();
       case 'skills':
         return renderSkillsSection();
+      case 'projects':
+        return renderProjectsSection();
+      case 'achievements':
+        return renderAchievementsSection();
+      case 'certifications':
+        return renderCertificationsSection();
+      case 'links':
+        return renderLinksSection();
+      case 'languages':
+        return renderLanguagesSection();
       default:
         return <div className="text-center text-muted-foreground py-8">Section coming soon...</div>;
     }
@@ -357,8 +470,8 @@ const EditingPanel = ({ resumeData, onDataChange, onSectionReorder }) => {
               key={section.id}
               onClick={() => setActiveSection(section.id)}
               className={`flex items-center space-x-2 px-4 py-2 rounded-card text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeSection === section.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
             >
               <Icon name={section.icon} size={16} />

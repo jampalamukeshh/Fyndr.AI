@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/team/', include('team_management.urls')),
     # path('api/jobmatcher/', include('jobmatcher.urls')),  # Temporarily disabled for migration
     path('api/applications/', include('jobapplier.urls')),
+    path('api/resume/', include('resumebuilder.urls')),
     # path('api/jobtracker/', include('jobtracker.urls')),  # Temporarily disabled for migration
     path('', include('jobscraper.urls')),
 ]

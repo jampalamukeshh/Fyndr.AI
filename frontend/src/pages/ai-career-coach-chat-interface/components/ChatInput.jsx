@@ -45,7 +45,7 @@ const ChatInput = ({ onSendMessage, onVoiceRecord, disabled = false }) => {
   };
 
   return (
-    <div className="glassmorphic-card p-4 border-t border-white/20">
+    <div className="p-4 border-t border-white/10 bg-white/85 dark:bg-zinc-900/80 backdrop-blur-sm">
       <div className="flex items-end space-x-3">
         <div className="flex-1 relative">
           <textarea
@@ -55,22 +55,21 @@ const ChatInput = ({ onSendMessage, onVoiceRecord, disabled = false }) => {
             onKeyPress={handleKeyPress}
             placeholder={disabled ? "AI is thinking..." : "Ask me anything about your career..."}
             disabled={disabled}
-            className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-foreground placeholder-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 min-h-[48px] max-h-[120px]"
+            className="w-full bg-white/80 dark:bg-zinc-800/70 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 pr-12 text-foreground placeholder-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all duration-200 min-h-[48px] max-h-[120px]"
             rows={1}
           />
-          
+
           <Button
             variant="ghost"
             size="icon"
             onClick={handleVoiceToggle}
-            className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 ${
-              isRecording ? 'text-error animate-pulse' : 'text-muted-foreground hover:text-primary'
-            }`}
+            className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 ${isRecording ? 'text-error animate-pulse' : 'text-muted-foreground hover:text-primary'
+              }`}
           >
             <Icon name={isRecording ? "MicOff" : "Mic"} size={16} />
           </Button>
         </div>
-        
+
         <Button
           variant="default"
           size="icon"
@@ -81,7 +80,7 @@ const ChatInput = ({ onSendMessage, onVoiceRecord, disabled = false }) => {
           <Icon name="Send" size={18} />
         </Button>
       </div>
-      
+
       {isRecording && (
         <div className="mt-3 flex items-center justify-center space-x-2 text-error">
           <div className="w-2 h-2 bg-error rounded-full animate-pulse"></div>

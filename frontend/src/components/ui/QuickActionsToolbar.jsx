@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import Icon from '../AppIcon';
 import Button from './Button';
 
-const QuickActionsToolbar = ({ 
+const QuickActionsToolbar = ({
   context = 'job-detail', // job-detail, resume-builder, dashboard
   jobData = null,
-  onBookmark = () => {},
-  onShare = () => {},
-  onApply = () => {},
-  onExport = () => {},
-  onSave = () => {},
+  onBookmark = () => { },
+  onShare = () => { },
+  onApply = () => { },
+  onExport = () => { },
+  onSave = () => { },
+  onExportServer = null,
   className = ''
 }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -18,10 +19,10 @@ const QuickActionsToolbar = ({
 
   const handleAction = async (actionType, callback) => {
     setIsLoading(prev => ({ ...prev, [actionType]: true }));
-    
+
     try {
       await callback();
-      
+
       // Handle specific action feedback
       if (actionType === 'bookmark') {
         setIsBookmarked(!isBookmarked);
@@ -83,20 +84,20 @@ const QuickActionsToolbar = ({
           },
           {
             key: 'export',
-            label: 'Export PDF',
+            label: 'Export',
             icon: 'Download',
             variant: 'outline',
             action: () => handleAction('export', onExport),
             loading: isLoading.export
           },
-          {
-            key: 'share',
-            label: 'Share Resume',
-            icon: 'Share2',
+          ...(onExportServer ? [{
+            key: 'export-server',
+            label: 'Export (Server PDF)',
+            icon: 'FileText',
             variant: 'outline',
-            action: () => setIsShareOpen(!isShareOpen),
-            loading: false
-          }
+            action: () => handleAction('export-server', onExportServer),
+            loading: isLoading['export-server']
+          }] : [])
         ];
 
       case 'dashboard':
@@ -114,7 +115,7 @@ const QuickActionsToolbar = ({
             label: 'Filters',
             icon: 'Filter',
             variant: 'outline',
-            action: () => {},
+            action: () => { },
             loading: false
           }
         ];
@@ -146,7 +147,7 @@ const QuickActionsToolbar = ({
 
             {/* Share Dropdown */}
             {action.key === 'share' && isShareOpen && (
-              <div className="absolute bottom-full right-0 mb-2 w-48 glass-card border border-glass-border rounded-card shadow-glass z-50">
+              <div className="absolute bottom-full right-0 mb-2 w-48 bg-card border border-border rounded-card shadow z-50">
                 <div className="p-2">
                   {shareOptions.map((option) => (
                     <button
@@ -169,7 +170,7 @@ const QuickActionsToolbar = ({
       </div>
 
       {/* Mobile Bottom Sheet */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 glass-card border-t border-glass-border">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border">
         <div className="flex items-center justify-around p-4 space-x-2">
           {actions.map((action) => (
             <div key={action.key} className="relative flex-1">
@@ -191,7 +192,7 @@ const QuickActionsToolbar = ({
 
               {/* Mobile Share Dropdown */}
               {action.key === 'share' && isShareOpen && (
-                <div className="absolute bottom-full left-0 right-0 mb-2 glass-card border border-glass-border rounded-card shadow-glass">
+                <div className="absolute bottom-full left-0 right-0 mb-2 bg-card border border-border rounded-card shadow">
                   <div className="p-2">
                     {shareOptions.map((option) => (
                       <button
@@ -216,7 +217,7 @@ const QuickActionsToolbar = ({
 
       {/* Overlay for mobile share */}
       {isShareOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-black/20 z-40"
           onClick={() => setIsShareOpen(false)}
         />
