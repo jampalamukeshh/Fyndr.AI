@@ -63,7 +63,7 @@ const JobCard = ({ job, onBookmark, onApply, onQuickApply }) => {
         <div className="glass-card p-6 hover-lift transition-all duration-300 relative overflow-hidden">
           {/* Background Gradient */}
           <div className="absolute inset-0 bg-gradient-soft opacity-50 group-hover:opacity-70 transition-opacity duration-300" />
-          
+
           {/* Content */}
           <div className="relative z-10">
             {/* Header */}
@@ -191,9 +191,9 @@ const JobCard = ({ job, onBookmark, onApply, onQuickApply }) => {
                       strokeDasharray={`${job.matchPercentage}, 100`}
                       className={`bg-gradient-${getMatchGradient(job.matchPercentage)} bg-clip-text text-transparent`}
                       style={{
-                        stroke: job.matchPercentage >= 90 ? '#10B981' : 
-                               job.matchPercentage >= 70 ? '#8B5CF6' : 
-                               job.matchPercentage >= 50 ? '#F59E0B' : '#EF4444'
+                        stroke: job.matchPercentage >= 90 ? '#10B981' :
+                          job.matchPercentage >= 70 ? '#8B5CF6' :
+                            job.matchPercentage >= 50 ? '#F59E0B' : '#EF4444'
                       }}
                     />
                   </svg>
@@ -214,9 +214,9 @@ const JobCard = ({ job, onBookmark, onApply, onQuickApply }) => {
                     )}
                   </div>
                   <p className={`text-sm font-medium ${getMatchColor(job.matchPercentage)}`}>
-                    {job.matchPercentage >= 90 ? 'Excellent' : 
-                     job.matchPercentage >= 70 ? 'Good' : 
-                     job.matchPercentage >= 50 ? 'Fair' : 'Low'}
+                    {job.matchPercentage >= 90 ? 'Excellent' :
+                      job.matchPercentage >= 70 ? 'Good' :
+                        job.matchPercentage >= 50 ? 'Fair' : 'Low'}
                   </p>
                   {job.lastScoreUpdate && (
                     <p className="text-xs text-muted-foreground">

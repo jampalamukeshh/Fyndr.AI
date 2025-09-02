@@ -99,7 +99,7 @@ const AISuggestionPanel = ({ isVisible, onClose, suggestions = [], onAccept, onR
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/20 z-40"
+            className="fixed inset-0 bg-black/40 z-40"
             onClick={onClose}
           />
 
@@ -109,10 +109,10 @@ const AISuggestionPanel = ({ isVisible, onClose, suggestions = [], onAccept, onR
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 300 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-96 glass-card border-l border-glass-border z-50 flex flex-col"
+            className="fixed right-0 top-0 h-full w-96 bg-card border-l border-border z-50 flex flex-col shadow-xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-glass-border">
+            <div className="flex items-center justify-between p-6 border-b border-border bg-card">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                   <Icon name="Sparkles" size={16} color="white" />
@@ -125,7 +125,7 @@ const AISuggestionPanel = ({ isVisible, onClose, suggestions = [], onAccept, onR
             </div>
 
             {/* Progress */}
-            <div className="px-6 py-4 border-b border-glass-border">
+            <div className="px-6 py-4 border-b border-border bg-card">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">
                   Suggestion {activeSuggestion + 1} of {activeSuggestions.length}
@@ -143,7 +143,7 @@ const AISuggestionPanel = ({ isVisible, onClose, suggestions = [], onAccept, onR
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 bg-card/95">
               <motion.div
                 key={activeSuggestion}
                 initial={{ opacity: 0, y: 20 }}
@@ -152,9 +152,9 @@ const AISuggestionPanel = ({ isVisible, onClose, suggestions = [], onAccept, onR
               >
                 {/* Suggestion Header */}
                 <div className="flex items-center space-x-3 mb-4">
-                  <Icon 
-                    name={getTypeIcon(currentSuggestion.type)} 
-                    size={20} 
+                  <Icon
+                    name={getTypeIcon(currentSuggestion.type)}
+                    size={20}
                     className={getTypeColor(currentSuggestion.type)}
                   />
                   <div>
@@ -201,7 +201,7 @@ const AISuggestionPanel = ({ isVisible, onClose, suggestions = [], onAccept, onR
             </div>
 
             {/* Actions */}
-            <div className="p-6 border-t border-glass-border">
+            <div className="p-6 border-t border-border bg-card">
               <div className="flex items-center justify-between mb-4">
                 <Button
                   variant="ghost"

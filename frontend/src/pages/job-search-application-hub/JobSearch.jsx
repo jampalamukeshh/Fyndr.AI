@@ -22,7 +22,7 @@ const JobSearchApplicationHub = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await jobsAPI.fetchJobs({
         country: 'india',
         page: append ? currentPage + 1 : 1,
@@ -30,7 +30,7 @@ const JobSearchApplicationHub = () => {
       });
 
       const transformedJobs = response.results.map(job => jobsAPI.transformJobData(job));
-      
+
       if (append) {
         setJobs(prev => [...prev, ...transformedJobs]);
         setCurrentPage(prev => prev + 1);
@@ -38,7 +38,7 @@ const JobSearchApplicationHub = () => {
         setJobs(transformedJobs);
         setCurrentPage(1);
       }
-      
+
       setTotalCount(response.count);
       setHasMore(!!response.next);
     } catch (err) {

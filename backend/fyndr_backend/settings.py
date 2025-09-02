@@ -5,8 +5,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 from dotenv import load_dotenv
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-SECRET_KEY = 'your-secret-key'
-DEBUG = True
+# Load sensitive settings from environment for safety. Defaults are safe for local dev.
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-local-dev-key')
+# Default DEBUG to True for development, allow override via env var 'DJANGO_DEBUG'
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
@@ -23,10 +25,12 @@ INSTALLED_APPS = [
     'cloudinary',  # Image management
     'cloudinary_storage',  # Cloudinary storage backend
     'fyndr_auth',
+    'team_management',
     'jobscraper',  # Job scraping engine
     'jobapplier',  # Job application automation
     'jobmatcher',  # AI-powered job matching and preparation
     'jobtracker',  # Application status tracking and analytics
+    'resumebuilder',  # Resume builder app
     'corsheaders',
 ]
 
@@ -131,6 +135,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'fyndr_auth.validators.WeakPasswordPatternValidator',
+    },
 ]
 
 LANGUAGE_CODE = 'en-us'
@@ -156,6 +163,10 @@ cloudinary.config(
     api_secret=os.getenv('CLOUDINARY_API_SECRET', ''),
     secure=True
 )
+
+# Ensure the logs directory exists for file-based logging
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+os.makedirs(LOGS_DIR, exist_ok=True)
 
 # Use Cloudinary for media storage in production
 if not DEBUG:
@@ -221,7 +232,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'application.log'),
+            'filename': os.path.join(LOGS_DIR, 'application.log'),
             'formatter': 'verbose',
         },
         'console': {
@@ -245,6 +256,16 @@ LOGGING = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Security settings applied when not in DEBUG (production)
+if not DEBUG:
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000'))  # 1 year
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True').lower() in ('1', 'true', 'yes')
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'True').lower() in ('1', 'true', 'yes')
+    CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'True').lower() in ('1', 'true', 'yes')
+    # Ensure SECRET_KEY is not the insecure default in production
+    if SECRET_KEY == 'django-insecure-local-dev-key':
+        raise RuntimeError('SECRET_KEY must be set in production environment')
 
 # ========================================
 # JOB APPLICATION AUTOMATION SETTINGS

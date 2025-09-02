@@ -16,12 +16,12 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
   useEffect(() => {
     const handleStatusUpdate = (event) => {
       const { applicationId, status, details } = event.detail;
-      
+
       // Update status if this job's application was updated
       if (job.applicationId && job.applicationId === applicationId) {
         setApplicationStatus(status);
         setIsApplying(false);
-        
+
         if (details?.confirmation_number) {
           setConfirmationNumber(details.confirmation_number);
         }
@@ -29,7 +29,7 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
     };
 
     window.addEventListener('applicationStatusUpdate', handleStatusUpdate);
-    
+
     return () => {
       window.removeEventListener('applicationStatusUpdate', handleStatusUpdate);
     };
@@ -49,19 +49,19 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
     setApplicationProgress({ stage: 'starting', message: 'Initializing application...' });
 
     try {
-  // Redirect-first approach: open external page (apply_url/url) and then record application as 'redirect'
-  setApplicationProgress({ stage: 'processing', message: 'Opening careers site…' });
-  const result = await jobApplicationService.redirectAndRecord(job, { notes: 'User redirected to careers site' });
+      // Redirect-first approach: open external page (apply_url/url) and then record application as 'redirect'
+      setApplicationProgress({ stage: 'processing', message: 'Opening careers site…' });
+      const result = await jobApplicationService.redirectAndRecord(job, { notes: 'User redirected to careers site' });
 
       if (result.success) {
         setApplicationStatus('applied');
         setConfirmationNumber(result.confirmation_number);
-        
+
         // Update job object with application info
         job.applicationId = result.application_id;
         job.applicationStatus = 'applied';
-        
-  setApplicationProgress({ stage: 'success', message: 'Opened careers site and recorded application.' });
+
+        setApplicationProgress({ stage: 'success', message: 'Opened careers site and recorded application.' });
 
         // Call parent handler
         if (onApply) {
@@ -73,14 +73,14 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
           setApplicationProgress(null);
         }, 3000);
 
-  } else {
+      } else {
         throw new Error(result.error || 'Application failed');
       }
 
     } catch (error) {
       console.error('Application failed:', error);
-  setApplicationProgress({ stage: 'error', message: error.message || 'Could not record application.' });
-      
+      setApplicationProgress({ stage: 'error', message: error.message || 'Could not record application.' });
+
       // Clear error after delay
       setTimeout(() => {
         setApplicationProgress(null);
@@ -129,12 +129,9 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
   };
 
   const formatSalary = (min, max) => {
-    if (min && max) {
-      return `$${min}K - $${max}K`;
-    }
-    if (min) {
-      return `$${min}K+`;
-    }
+    const toINR = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+    if (min && max) return `${toINR(min * 100000)} - ${toINR(max * 100000)} per year`;
+    if (min) return `${toINR(min * 100000)}+ per year`;
     return 'Salary not disclosed';
   };
 
@@ -143,7 +140,7 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
     const posted = new Date(date);
     const diffTime = Math.abs(now - posted);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
@@ -187,16 +184,15 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
             <p className="text-muted-foreground text-sm truncate">{job.company.name}</p>
           </div>
         </div>
-        
+
         <button
           onClick={(e) => {
             e.stopPropagation();
             handleSave();
           }}
-          className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${
-            isSaved 
-              ? 'text-error bg-error/20' :'text-muted-foreground hover:text-error hover:bg-error/10'
-          }`}
+          className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${isSaved
+            ? 'text-error bg-error/20' : 'text-muted-foreground hover:text-error hover:bg-error/10'
+            }`}
         >
           <Icon name={isSaved ? "Heart" : "Heart"} size={20} fill={isSaved ? "currentColor" : "none"} />
         </button>
@@ -233,16 +229,16 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
 
         <div className="flex items-center justify-between">
           <div className="text-sm font-medium text-foreground">
-            {job.salary?.type === 'hourly' 
-              ? `$${job.salary.min}-${job.salary.max}/hr`
-              : job.salary?.min 
-                ? `$${job.salary.min.toLocaleString()}-$${job.salary.max?.toLocaleString?.()}`
-                : job.salary?.text 
-                  || (typeof job.salary === 'string' ? job.salary : '')
-                  || job.salary_text 
-                  || job.salary_range_display 
-                  || job.compensation?.display 
-                  || 'Salary not disclosed'
+            {job.salary?.type === 'hourly'
+              ? `${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((job.salary.min || 0) * 1000)}-${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((job.salary.max || 0) * 1000)}/hr`
+              : job.salary?.min
+                ? `${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((job.salary.min || 0) * 100000)}-${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((job.salary.max || 0) * 100000)}`
+                : job.salary?.text
+                || (typeof job.salary === 'string' ? job.salary : '')
+                || job.salary_text
+                || job.salary_range_display
+                || job.compensation?.display
+                || 'Salary not disclosed'
             }
           </div>
           <div className="flex items-center space-x-2">
@@ -346,7 +342,7 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
           >
             View
           </Button>
-          
+
           {applicationStatus === 'not-applied' && (
             <div className="flex items-center gap-2">
               <Button
@@ -383,7 +379,7 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
               )}
             </div>
           )}
-          
+
           {applicationStatus === 'applied' && (
             <Button
               variant="secondary"
@@ -414,15 +410,14 @@ const JobCard = ({ job, onSave, onApply, onQuickApply, onViewDetails }) => {
             {applicationProgress.stage === 'error' && (
               <Icon name="XCircle" size={16} className="text-error" />
             )}
-            <span className={`text-sm ${
-              applicationProgress.stage === 'success' ? 'text-success' :
+            <span className={`text-sm ${applicationProgress.stage === 'success' ? 'text-success' :
               applicationProgress.stage === 'error' ? 'text-error' :
-              'text-foreground'
-            }`}>
+                'text-foreground'
+              }`}>
               {applicationProgress.message}
             </span>
           </div>
-          
+
           {applicationProgress.stage === 'processing' && (
             <div className="mt-2 w-full bg-muted rounded-full h-1">
               <div className="bg-primary h-1 rounded-full animate-pulse" style={{ width: '60%' }}></div>

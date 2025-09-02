@@ -25,7 +25,7 @@ const JobDetailView = () => {
   const [searchParams] = useSearchParams();
   const [isApplied, setIsApplied] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  
+
   // Real-time features state
   const [realTimeData, setRealTimeData] = useState(null);
   const [liveViewers, setLiveViewers] = useState(0);
@@ -79,7 +79,7 @@ const JobDetailView = () => {
       min: fetchedJob.salary?.min || 0,
       max: fetchedJob.salary?.max || 0,
       type: 'annual',
-      currency: 'USD',
+      currency: 'INR',
       equity: true,
       bonusEligible: true
     }
@@ -120,7 +120,7 @@ const JobDetailView = () => {
     founded: jobData.company?.founded || "2015",
     description: jobData.company?.description || `${jobData.company?.name || 'This company'} is a leading technology company specializing in innovative web applications and digital solutions. We're passionate about creating products that make a difference in people's lives and are committed to fostering a culture of innovation, collaboration, and continuous learning.`,
     fundingStage: "Series C",
-    revenue: "$50M+",
+    revenue: "₹400Cr+",
     growth: "+25%",
     rating: "4.2",
     workLifeBalance: 4.1,
@@ -148,17 +148,18 @@ const JobDetailView = () => {
 
   // Enhanced salary data based on real job data
   const salaryData = {
-    offered: jobData?.salaryDetails?.max || jobData?.salary?.max || 140000,
-    market: (jobData?.salaryDetails?.min || jobData?.salary?.min || 120000) + 15000,
-    top10: (jobData?.salaryDetails?.max || jobData?.salary?.max || 160000) + 20000
+    // Keep numbers as annual INR values (e.g., 2,400,000 for 24 LPA)
+    offered: jobData?.salaryDetails?.max || jobData?.salary?.max || 2400000,
+    market: (jobData?.salaryDetails?.min || jobData?.salary?.min || 1800000) + 200000,
+    top10: (jobData?.salaryDetails?.max || jobData?.salary?.max || 3000000) + 300000
   };
 
   const marketData = [
-    { experience: "0-2 years", min: 80000, avg: 95000, max: 110000 },
-    { experience: "3-5 years", min: 110000, avg: 135000, max: 160000 },
-    { experience: "5-8 years", min: 140000, avg: 165000, max: 190000 },
-    { experience: "8+ years", min: 170000, avg: 200000, max: 250000 }
-  ];
+    { experience: "0-2 years", min: 400000, avg: 600000, max: 900000 },
+    { experience: "3-5 years", min: 800000, avg: 1200000, max: 1800000 },
+    { experience: "5-8 years", min: 1500000, avg: 2200000, max: 3000000 },
+    { experience: "8+ years", min: 2500000, avg: 3500000, max: 5000000 }
+  ]
 
   const growthData = [
     { year: "2020", salary: 125000 },
@@ -177,7 +178,7 @@ const JobDetailView = () => {
   useEffect(() => {
     const fetchRelatedJobs = async () => {
       if (!jobData) return;
-      
+
       setRelatedJobsLoading(true);
       try {
         // Search for jobs with similar skills or in the same location
@@ -187,9 +188,9 @@ const JobDetailView = () => {
           pageSize: 3,
           page: 1
         };
-        
+
         const response = await jobsAPI.fetchJobs(searchParams);
-        
+
         // Transform and filter out current job
         const transformedJobs = response.results
           ?.filter(job => job.job_id !== jobData.id)
@@ -207,7 +208,7 @@ const JobDetailView = () => {
             postedTime: job.date_posted || 'Recently',
             views: Math.floor(Math.random() * 100) + 20
           })) || [];
-          
+
         setRelatedJobs(transformedJobs);
       } catch (error) {
         console.error('Failed to fetch related jobs:', error);
@@ -262,9 +263,9 @@ const JobDetailView = () => {
   const handleApply = async () => {
     try {
       // Redirect-first: open URL and record application
-      const jobObj = { 
-        id: jobId, 
-        url: jobData?.apply_url || jobData?.application_url || jobData?.url || jobData?.job?.url 
+      const jobObj = {
+        id: jobId,
+        url: jobData?.apply_url || jobData?.application_url || jobData?.url || jobData?.job?.url
       };
       const result = await jobApplicationService.redirectAndRecord(jobObj, { notes: 'User redirected from job detail view' });
 
@@ -283,7 +284,7 @@ const JobDetailView = () => {
         const conf = prompt('Optional: enter confirmation number', '') || undefined;
         try {
           await jobApplicationService.confirmApplied(appId, { confirmationNumber: conf, applicationUrl: jobObj.url });
-        } catch (_) {}
+        } catch (_) { }
       }
 
       // Nudge for Gmail auto-confirm
@@ -297,7 +298,7 @@ const JobDetailView = () => {
       }
     } catch (error) {
       console.error('Application failed:', error);
-      try { (await import('utils/showToast')).default(error.message || 'Failed to record application.', 'error'); } catch (_) {}
+      try { (await import('utils/showToast')).default(error.message || 'Failed to record application.', 'error'); } catch (_) { }
     }
   };
 
@@ -311,9 +312,9 @@ const JobDetailView = () => {
         message: 'Quick Apply (Beta) attempted. We will update the status if successful.',
         timestamp: new Date().toISOString()
       }]);
-      try { (await import('utils/showToast')).default(res?.message || 'Attempted Quick Apply (Beta).', 'success'); } catch (_) {}
+      try { (await import('utils/showToast')).default(res?.message || 'Attempted Quick Apply (Beta).', 'success'); } catch (_) { }
     } catch (e) {
-      try { (await import('utils/showToast')).default(e?.message || 'Quick Apply failed.', 'error'); } catch (_) {}
+      try { (await import('utils/showToast')).default(e?.message || 'Quick Apply failed.', 'error'); } catch (_) { }
     } finally {
       setQuickApplying(false);
     }
@@ -377,13 +378,13 @@ const JobDetailView = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Job</h2>
             <p className="text-gray-600 mb-4">{jobError}</p>
             <div className="space-x-4">
-              <button 
+              <button
                 onClick={() => refetch()}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
               >
                 Retry
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/ai-job-feed-dashboard')}
                 className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
               >
@@ -409,7 +410,7 @@ const JobDetailView = () => {
                 <div className="h-6 bg-gray-300 rounded w-1/2 mb-2"></div>
                 <div className="h-6 bg-gray-300 rounded w-1/3"></div>
               </div>
-              
+
               {/* Content skeleton */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">

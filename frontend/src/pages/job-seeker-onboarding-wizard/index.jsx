@@ -130,12 +130,57 @@ const JobSeekerOnboardingWizard = () => {
         });
 
         if (response && Object.keys(response).length > 0) {
+          // Build a safe, displayable profileImage if backend returned profile_image object/url
+          const tokenForFiles = localStorage.getItem('accessToken') || '';
+          let displayProfileImage = '';
+          // response.profile_image may be an object {url, name, ...} or a string URL
+          if (response.profile_image && typeof response.profile_image === 'object' && response.profile_image.url) {
+            const imgUrl = response.profile_image.url;
+            displayProfileImage = `${imgUrl}${imgUrl.includes('?') ? '&' : '?'}token=${tokenForFiles}`;
+          } else if (typeof response.profile_image === 'string' && response.profile_image) {
+            const imgUrl = response.profile_image;
+            displayProfileImage = `${imgUrl}${imgUrl.includes('?') ? '&' : '?'}token=${tokenForFiles}`;
+          } else if (response.profile_image_url) {
+            const imgUrl = response.profile_image_url;
+            displayProfileImage = `${imgUrl}${imgUrl.includes('?') ? '&' : '?'}token=${tokenForFiles}`;
+          }
+
           backendData = {
             firstName: response.first_name || '',
             lastName: response.last_name || '',
             email: response.email || '',
+            profileImage: displayProfileImage || '',
+            // Persistable raw file URL if available
+            profileImageFile: response.profile_image && response.profile_image.url
+              ? { url: response.profile_image.url }
+              : (response.profile_image_url ? { url: response.profile_image_url } : undefined),
             ...response // Include any other existing onboarding data
           };
+
+          // Normalize common backend snake_case keys into camelCase UI keys so
+          // onboarding components (which expect camelCase) render values like salary
+          // and desired roles correctly.
+          const normalize = (src) => {
+            const dst = { ...src };
+            const map = {
+              salary_min: 'salaryMin',
+              salary_max: 'salaryMax',
+              desired_roles: 'desiredRoles',
+              preferred_roles: 'preferredRoles',
+              job_title: 'jobTitle',
+              first_name: 'firstName',
+              last_name: 'lastName'
+            };
+            Object.keys(map).forEach(snake => {
+              const camel = map[snake];
+              if (src[snake] !== undefined && dst[camel] === undefined) {
+                dst[camel] = src[snake];
+              }
+            });
+            return dst;
+          };
+
+          backendData = normalize(backendData);
           console.log('Loaded user data from backend:', backendData);
           // Print fname, lname, email in console
           console.log('fname:', backendData.firstName, 'lname:', backendData.lastName, 'email:', backendData.email);

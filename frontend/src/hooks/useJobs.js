@@ -27,23 +27,23 @@ export const useJobs = (initialParams = {}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState(initialParams);
   const requestIdRef = useRef(0);
-  
+
   // Use refs to store current values without causing re-renders
   const filtersRef = useRef(filters);
   const currentPageRef = useRef(currentPage);
-  
+
   // Update refs when values change
   useEffect(() => {
     filtersRef.current = filters;
   }, [filters]);
-  
+
   useEffect(() => {
     currentPageRef.current = currentPage;
   }, [currentPage]);
 
   const fetchJobs = useCallback(async (params = {}, append = false) => {
     const currentRequestId = ++requestIdRef.current;
-    
+
     try {
       setLoading(true);
       setError(null);
@@ -83,9 +83,9 @@ export const useJobs = (initialParams = {}) => {
       if (currentRequestId !== requestIdRef.current) {
         return; // Request was superseded
       }
-      
+
       console.error('Error fetching jobs:', err);
-      
+
       // Handle authentication errors gracefully
       if (err.message.includes('Authentication required') || err.message.includes('401')) {
         setError('Jobs loaded without personalization. Log in for personalized recommendations.');
@@ -135,16 +135,16 @@ export const useJobs = (initialParams = {}) => {
   // Reload when filters actually change
   useEffect(() => {
     const currentFiltersString = JSON.stringify(filters);
-    
+
     // Only fetch if filters actually changed from last fetch
     if (!isInitialLoad.current && currentFiltersString !== lastFiltersRef.current) {
       lastFiltersRef.current = currentFiltersString;
-      
+
       // Add a small delay to prevent rapid successive calls
       const timeoutId = setTimeout(() => {
         fetchJobs(filters, false);
       }, 300);
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [JSON.stringify(filters)]); // Use string comparison for stable dependency
@@ -169,20 +169,20 @@ export const useJobStats = (filters = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const requestIdRef = useRef(0);
-  
+
   // Debounce filters to prevent rapid API calls
   const debouncedFilters = useDebounce(JSON.stringify(filters), 500);
 
   useEffect(() => {
     const fetchStats = async () => {
       const currentRequestId = ++requestIdRef.current;
-      
+
       try {
         setLoading(true);
         setError(null);
         const parsedFilters = JSON.parse(debouncedFilters);
         const response = await jobsAPI.fetchJobStats(parsedFilters);
-        
+
         // Only update if this is still the most recent request
         if (currentRequestId === requestIdRef.current) {
           setStats(response);
@@ -221,20 +221,20 @@ export const useFilterOptions = (filters = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const requestIdRef = useRef(0);
-  
+
   // Debounce filters to prevent rapid API calls
   const debouncedFilters = useDebounce(JSON.stringify(filters), 500);
 
   useEffect(() => {
     const fetchFilterOptions = async () => {
       const currentRequestId = ++requestIdRef.current;
-      
+
       try {
         setLoading(true);
         setError(null);
         const parsedFilters = JSON.parse(debouncedFilters);
         const response = await jobsAPI.fetchFilterOptions(parsedFilters);
-        
+
         // Only update if this is still the most recent request
         if (currentRequestId === requestIdRef.current) {
           setFilterOptions(response);

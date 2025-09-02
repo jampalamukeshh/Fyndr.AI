@@ -16,7 +16,9 @@ export default defineConfig({
       'components': '/src/components',
       'pages': '/src/pages',
       'styles': '/src/styles',
-      'utils': '/src/utils'
+      'utils': '/src/utils',
+      'services': '/src/services',
+      'constants': '/src/constants'
     },
   },
   server: {
@@ -43,5 +45,11 @@ export default defineConfig({
         secure: false,
       },
     },
+  }
+  ,
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['/src/test/setupTests.js'],
+    globals: true
   }
 });

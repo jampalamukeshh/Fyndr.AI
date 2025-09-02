@@ -17,9 +17,9 @@ const SocialAuthButtons = ({ onSocialAuth, isLoading }) => {
         return onSocialAuth && onSocialAuth(provider);
       }
       try {
-  // Remember next path for post-connect
-  try { localStorage.setItem('postGoogleConnectNext', window.location.pathname || '/job-applications'); } catch {}
-  const res = await apiRequest('/auth/oauth/google/init/', 'GET');
+        // Remember next path for post-connect
+        try { localStorage.setItem('postGoogleConnectNext', window.location.pathname || '/job-applications'); } catch { }
+        const res = await apiRequest('/auth/oauth/google/init/', 'GET');
         if (res && res.authorize_url) {
           window.location.href = res.authorize_url;
           return;
@@ -52,7 +52,7 @@ const SocialAuthButtons = ({ onSocialAuth, isLoading }) => {
           fullWidth
           onClick={() => handleSocialClick('google')}
           disabled={isLoading}
-          className={`relative overflow-hidden ${rippleButton === 'google' ? 'ripple' : ''
+          className={`relative overflow-hidden rounded-lg ${rippleButton === 'google' ? 'ripple' : ''
             }`}
         >
           <div className="flex items-center justify-center space-x-2">
@@ -84,7 +84,7 @@ const SocialAuthButtons = ({ onSocialAuth, isLoading }) => {
           fullWidth
           onClick={() => handleSocialClick('linkedin')}
           disabled={isLoading}
-          className={`relative overflow-hidden ${rippleButton === 'linkedin' ? 'ripple' : ''
+          className={`relative overflow-hidden rounded-lg ${rippleButton === 'linkedin' ? 'ripple' : ''
             }`}
         >
           <div className="flex items-center justify-center space-x-2">

@@ -4,21 +4,21 @@ import JobCard from './JobCard';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 
-const JobGrid = ({ 
-  jobs, 
-  loading, 
-  hasMore, 
-  onLoadMore, 
-  onBookmark, 
+const JobGrid = ({
+  jobs,
+  loading,
+  hasMore,
+  onLoadMore,
+  onBookmark,
   onApply,
   onQuickApply,
-  showBookmarkedOnly = false 
+  showBookmarkedOnly = false
 }) => {
   const [displayedJobs, setDisplayedJobs] = useState([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
-    const filteredJobs = showBookmarkedOnly 
+    const filteredJobs = showBookmarkedOnly
       ? jobs.filter(job => job.isBookmarked)
       : jobs;
     setDisplayedJobs(filteredJobs);
@@ -26,7 +26,7 @@ const JobGrid = ({
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
-    
+
     setIsLoadingMore(true);
     await onLoadMore();
     setIsLoadingMore(false);
@@ -108,8 +108,8 @@ const JobGrid = ({
           {showBookmarkedOnly ? 'No Bookmarked Jobs' : 'No Jobs Found'}
         </h3>
         <p className="text-muted-foreground mb-6 max-w-md">
-          {showBookmarkedOnly 
-            ? 'You haven\'t bookmarked any jobs yet. Start exploring and save interesting opportunities!' :'We couldn\'t find any jobs matching your criteria. Try adjusting your filters or search terms.'
+          {showBookmarkedOnly
+            ? 'You haven\'t bookmarked any jobs yet. Start exploring and save interesting opportunities!' : 'We couldn\'t find any jobs matching your criteria. Try adjusting your filters or search terms.'
           }
         </p>
         {showBookmarkedOnly && (

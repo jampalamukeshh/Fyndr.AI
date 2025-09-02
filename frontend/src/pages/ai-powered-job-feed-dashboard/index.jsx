@@ -206,7 +206,7 @@ const AIJobFeedDashboard = () => {
       const timeoutId = setTimeout(() => {
         loadInitialJobs();
       }, 300);
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [realTimeMode, userProfile]); // Only depend on the actual state values
@@ -432,7 +432,7 @@ const AIJobFeedDashboard = () => {
       }
     } catch (error) {
       console.error('Application failed:', error);
-      try { (await import('utils/showToast')).default(`Application failed: ${error.message}`, 'error'); } catch (_) {}
+      try { (await import('utils/showToast')).default(`Application failed: ${error.message}`, 'error'); } catch (_) { }
     }
   }, [jobs]);
 
@@ -447,9 +447,9 @@ const AIJobFeedDashboard = () => {
     }
     try {
       const res = await quickApply(jobId, 'dynamic');
-      try { (await import('utils/showToast')).default(res?.message || 'Attempted Quick Apply (Beta). We will update the status if successful.', 'success'); } catch (_) {}
+      try { (await import('utils/showToast')).default(res?.message || 'Attempted Quick Apply (Beta). We will update the status if successful.', 'success'); } catch (_) { }
     } catch (e) {
-      try { (await import('utils/showToast')).default(e?.message || 'Quick Apply failed.', 'error'); } catch (_) {}
+      try { (await import('utils/showToast')).default(e?.message || 'Quick Apply failed.', 'error'); } catch (_) { }
     }
   }, [jobs, quickApply]);
 
@@ -527,7 +527,7 @@ const AIJobFeedDashboard = () => {
 
   // Handle load more (use ref for jobs length to prevent dependency issues)
   const jobsLengthRef = useRef(0);
-  
+
   useEffect(() => {
     jobsLengthRef.current = jobs.length;
   }, [jobs.length]);

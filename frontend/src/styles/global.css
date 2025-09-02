@@ -63,6 +63,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -77,6 +78,7 @@
     transform: translateX(20px);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -92,6 +94,7 @@
     transform: translateX(-20px);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -107,6 +110,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -115,7 +119,8 @@
 
 /* Layout helpers */
 .page-container {
-  padding-top: 4rem; /* Account for navbar */
+  padding-top: 4rem;
+  /* Account for navbar */
   min-height: calc(100vh - 4rem);
 }
 
@@ -138,8 +143,8 @@
 }
 
 /* Fix for different button styles across repos */
-button[class*="btn-"], 
-.btn, 
+button[class*="btn-"],
+.btn,
 .button {
   display: inline-flex;
   align-items: center;
@@ -152,16 +157,16 @@ button[class*="btn-"],
   transition-duration: 150ms;
 }
 
-button[class*="btn-"]:focus-visible, 
-.btn:focus-visible, 
+button[class*="btn-"]:focus-visible,
+.btn:focus-visible,
 .button:focus-visible {
   outline: 2px solid transparent;
   outline-offset: 2px;
   box-shadow: 0 0 0 2px var(--color-ring);
 }
 
-button[class*="btn-"]:disabled, 
-.btn:disabled, 
+button[class*="btn-"]:disabled,
+.btn:disabled,
 .button:disabled {
   opacity: 0.5;
 }

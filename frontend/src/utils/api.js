@@ -23,7 +23,7 @@ function getAuthHeaders(token = null) {
 
   // Use provided token or get from tokenManager
   const authToken = token || tokenManager.getAccessToken();
-  
+
   // Only add auth header if token exists and looks valid
   if (authToken && authToken !== 'null' && authToken !== 'undefined' && authToken.length > 10) {
     headers['Authorization'] = `Bearer ${authToken}`;
@@ -34,7 +34,7 @@ function getAuthHeaders(token = null) {
 
 export async function apiRequest(endpoint, method = 'GET', data = null, customToken = null) {
   const url = getApiUrl(endpoint);
-  
+
   try {
     // Get valid access token (will refresh if necessary)
     let authToken = customToken;
@@ -50,7 +50,9 @@ export async function apiRequest(endpoint, method = 'GET', data = null, customTo
       }
     }
 
-    const headers = getAuthHeaders(authToken);
+    // Avoid sending Authorization for open auth endpoints
+    const isAuthEndpoint = /\/auth\/(login|register)\/?$/.test(endpoint);
+    const headers = isAuthEndpoint ? { 'Content-Type': 'application/json' } : getAuthHeaders(authToken);
     const options = {
       method,
       headers,
@@ -78,25 +80,28 @@ export async function apiRequest(endpoint, method = 'GET', data = null, customTo
       // Handle 401 Unauthorized - attempt token refresh ONCE
       if (response.status === 401 && !customToken && tokenManager.isAuthenticated()) {
         console.warn('🔐 401 Unauthorized - attempting token refresh...');
-        
+
         try {
           const newToken = await tokenManager.handle401Error();
-          
+
           // Retry the request with the new token
           console.log('🔄 Retrying request with refreshed token...');
           const retryHeaders = getAuthHeaders(newToken);
           const retryOptions = { ...options, headers: retryHeaders };
-          
+
           const retryResponse = await fetch(url, retryOptions);
           const retryResult = await retryResponse.json();
-          
+
           if (!retryResponse.ok) {
             console.error('Request failed even after token refresh:', retryResponse.status);
-            throw new Error(retryResult.detail || retryResult.message || `HTTP error! status: ${retryResponse.status}`);
+            const err = new Error(retryResult.detail || retryResult.message || `HTTP error! status: ${retryResponse.status}`);
+            err.response = retryResult;
+            err.status = retryResponse.status;
+            throw err;
           }
-          
+
           return retryResult;
-          
+
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError.message);
           if (refreshError.message === 'AUTHENTICATION_FAILED') {
@@ -105,12 +110,26 @@ export async function apiRequest(endpoint, method = 'GET', data = null, customTo
           throw refreshError;
         }
       }
-      
-      throw new Error(result.detail || result.message || `HTTP error! status: ${response.status}`);
+
+      // Build a more helpful error message if API returned field errors
+      let message = result && (result.detail || result.message);
+      if (!message && result && typeof result === 'object') {
+        try {
+          const entries = Object.entries(result);
+          if (entries.length > 0) {
+            const sample = entries.slice(0, 3).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : String(v))}`);
+            message = sample.join(' | ');
+          }
+        } catch { /* noop */ }
+      }
+      const err = new Error(message || `HTTP error! status: ${response.status}`);
+      err.response = result;
+      err.status = response.status;
+      throw err;
     }
 
     return result;
-    
+
   } catch (error) {
     // Re-throw with more context if it's a network or parsing error
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -119,7 +138,7 @@ export async function apiRequest(endpoint, method = 'GET', data = null, customTo
     if (error.name === 'SyntaxError' && error.message.includes('JSON')) {
       throw new Error('Server returned invalid JSON response. This might be a server error.');
     }
-    
+
     throw error;
   }
 }

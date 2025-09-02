@@ -65,7 +65,7 @@ const OptimizationScore = ({ score = 75, tips = [] }) => {
   };
 
   return (
-    <div className="glass-card p-6 mb-6">
+    <div className="bg-card border border-border rounded-card p-6 mb-6 shadow">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-foreground">Optimization Score</h3>
         <Button variant="ghost" size="sm">
@@ -121,9 +121,9 @@ const OptimizationScore = ({ score = 75, tips = [] }) => {
             <h4 className="text-xl font-semibold text-foreground">
               {score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : 'Needs Improvement'}
             </h4>
-            <Icon 
-              name={score >= 80 ? 'CheckCircle' : score >= 60 ? 'AlertCircle' : 'XCircle'} 
-              size={20} 
+            <Icon
+              name={score >= 80 ? 'CheckCircle' : score >= 60 ? 'AlertCircle' : 'XCircle'}
+              size={20}
               className={getScoreColor(score)}
             />
           </div>
@@ -159,18 +159,17 @@ const OptimizationScore = ({ score = 75, tips = [] }) => {
               transition={{ duration: 0.3 }}
               className="flex items-start space-x-3 p-3 bg-muted rounded-card hover:bg-muted/80 transition-colors"
             >
-              <Icon 
-                name={getImpactIcon(tip.impact)} 
-                size={16} 
+              <Icon
+                name={getImpactIcon(tip.impact)}
+                size={16}
                 className={`mt-0.5 ${getImpactColor(tip.impact)}`}
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <h5 className="text-sm font-medium text-foreground">{tip.title}</h5>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    tip.impact === 'high' ? 'bg-error/10 text-error' :
-                    tip.impact === 'medium'? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
-                  }`}>
+                  <span className={`text-xs px-2 py-1 rounded-full ${tip.impact === 'high' ? 'bg-error/10 text-error' :
+                      tip.impact === 'medium' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
+                    }`}>
                     {tip.impact} impact
                   </span>
                 </div>
