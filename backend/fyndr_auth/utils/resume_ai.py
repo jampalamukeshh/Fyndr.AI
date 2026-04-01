@@ -284,15 +284,14 @@ def _heuristic_extract_projects_from_text(text: str) -> List[Dict[str, Any]]:
 
 
 def call_gemini_for_resume(parsed_text: str) -> Optional[Dict[str, Any]]:
-	api_key = getattr(settings, "GEMINI_API_KEY", None) or os.getenv("GEMINI_API_KEY")
+	api_key = getattr(settings, "GROQ_API_KEY", None) or os.getenv("GROQ_API_KEY")
 	if not api_key:
-		logger.info("GEMINI_API_KEY not configured; skipping AI extraction")
+		logger.info("GROQ_API_KEY not configured; skipping AI extraction")
 		return None
 	try:
-		import google.generativeai as genai
-		genai.configure(api_key=api_key)
-		model_name = getattr(settings, "GEMINI_MODEL", None) or os.getenv("GEMINI_MODEL") or "gemini-1.5-flash"
-		model = genai.GenerativeModel(model_name)
+		from groq import Groq
+		client = Groq(api_key=api_key)
+		model_name = getattr(settings, "GROQ_MODEL", None) or os.getenv("GROQ_MODEL") or "llama-3.1-8b-instant"
 		schema = {
 			"type": "object",
 			"properties": {
@@ -409,8 +408,12 @@ def call_gemini_for_resume(parsed_text: str) -> Optional[Dict[str, Any]]:
 			"CRITICAL: Always include the top-level keys 'suited_roles' and 'preferred_roles' in the JSON output. If none apply, return them as empty arrays. Do NOT omit these keys.\n\n"
 			"Return the parsed JSON now. Resume text follows: \n" + parsed_text[:15000]
 		)
-		resp = model.generate_content(prompt)
-		text = resp.text if hasattr(resp, "text") else (resp.candidates[0].content.parts[0].text if getattr(resp, "candidates", None) else "")
+		resp = client.chat.completions.create(
+			model=model_name,
+			messages=[{"role": "user", "content": prompt}],
+			temperature=0.2,
+		)
+		text = resp.choices[0].message.content if resp.choices else ""
 		if not text:
 			return None
 		# Sometimes models wrap in triple backticks
@@ -428,11 +431,11 @@ def call_gemini_for_resume(parsed_text: str) -> Optional[Dict[str, Any]]:
 				cleaned = re.sub(r",\s*([}\]])", r"\1", text)
 				data = json.loads(cleaned)
 			except Exception as e:
-				logger.warning(f"Gemini JSON parse failed: {e}; raw: {text[:200]}…")
+				logger.warning(f"Groq JSON parse failed: {e}; raw: {text[:200]}…")
 				return None
 		return data
 	except Exception as e:
-		logger.error(f"Gemini call failed: {e}")
+		logger.error(f"Groq call failed: {e}")
 		return None
 
 

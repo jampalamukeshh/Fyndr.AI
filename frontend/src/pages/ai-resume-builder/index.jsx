@@ -10,7 +10,6 @@ import TemplateCarousel from './components/TemplateCarousel';
 import OptimizationScore from './components/OptimizationScore';
 import EditingPanel from './components/EditingPanel';
 import LivePreview from './components/LivePreview';
-import PdfPreview from './components/PdfPreview';
 import AISuggestionPanel from './components/AISuggestionPanel';
 // removed ExportModal usage to export directly
 import SnapshotsPanel from './components/SnapshotsPanel';
@@ -32,7 +31,6 @@ const AIResumeBuilder = () => {
     }
   }, [navigate]);
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
-  const [stage, setStage] = useState('choose'); // 'choose' | 'edit'
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   // no export modal; we export directly on action
   const [isMobilePreview, setIsMobilePreview] = useState(false);
@@ -41,46 +39,23 @@ const AIResumeBuilder = () => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [resumeData, setResumeData] = useState({
     personal: {
-      fullName: 'John Doe',
-      title: 'Senior Software Engineer',
-      email: 'john.doe@email.com',
-      phone: '+1 (555) 123-4567',
-      location: 'Bengaluru, Karnataka',
-      summary: 'Experienced software engineer with 8+ years of expertise in full-stack development, specializing in React, Node.js, and cloud technologies. Proven track record of leading cross-functional teams and delivering scalable solutions that drive business growth.'
+      fullName: '',
+      title: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
     },
-    experience: [
-      {
-        title: 'Senior Software Engineer',
-        company: 'TechCorp Inc.',
-        startDate: '2021-03-01',
-        endDate: '',
-        current: true,
-        description: 'Led development of microservices architecture serving 2M+ users daily. Implemented CI/CD pipelines reducing deployment time by 60%. Mentored junior developers and established coding standards across the engineering team.'
-      },
-      {
-        title: 'Full Stack Developer',
-        company: 'StartupXYZ',
-        startDate: '2019-01-15',
-        endDate: '2021-02-28',
-        current: false,
-        description: 'Built responsive web applications using React and Node.js. Collaborated with design team to implement pixel-perfect UI components. Optimized database queries resulting in 40% performance improvement.'
-      }
-    ],
-    education: [
-      {
-        degree: 'Bachelor of Science',
-        field: 'Computer Science',
-        institution: 'University of California, Berkeley',
-        year: '2018',
-        gpa: '3.8/4.0'
-      }
-    ],
-    skills: [
-      'JavaScript', 'React.js', 'Node.js', 'Python', 'AWS', 'Docker', 'PostgreSQL', 'MongoDB', 'Git', 'Agile/Scrum'
-    ]
+    experience: [],
+    education: [],
+    skills: [],
+    achievements: [],
+    certifications: [],
+    projects: [],
+    links: { linkedin: '', github: '', portfolio: '', website: '' },
+    languages: [],
   });
 
-  const [profileSnapshot, setProfileSnapshot] = useState(null);
   const [mappedProfileData, setMappedProfileData] = useState(null);
   const initialProfileLoad = useRef(true);
   const [availableTemplates, setAvailableTemplates] = useState(['modern', 'classic']);
@@ -92,6 +67,35 @@ const AIResumeBuilder = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [renameModal, setRenameModal] = useState({ open: false, snap: null });
   const [deleteModal, setDeleteModal] = useState({ open: false, snap: null, loading: false });
+
+  const hasMeaningfulResumeData = (data) => {
+    if (!data) return false;
+    const personal = data.personal || {};
+    return Boolean(
+      (personal.fullName || '').trim() ||
+      (personal.title || '').trim() ||
+      (personal.summary || '').trim() ||
+      (data.experience || []).length ||
+      (data.education || []).length ||
+      (data.skills || []).length
+    );
+  };
+
+  const normalizeOptionalUrl = (value) => {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    try {
+      const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+      const parsed = new URL(withProtocol);
+      const hostname = parsed.hostname || '';
+      if (!(hostname === 'localhost' || hostname.includes('.'))) {
+        return '';
+      }
+      return parsed.toString();
+    } catch {
+      return '';
+    }
+  };
 
   // Map backend JobSeekerProfile -> resumeData shape
   const profileToResume = (p) => {
@@ -114,9 +118,9 @@ const AIResumeBuilder = () => {
     })) : [];
     const edu = Array.isArray(p?.education) ? p.education.map(ed => ({
       degree: ed?.degree || '',
-      field: ed?.field || ed?.major || '',
+      field: ed?.field_of_study || ed?.field || ed?.major || '',
       institution: ed?.institution || ed?.school || '',
-      year: ed?.year || ed?.graduation_year || '',
+      year: ed?.end_year || ed?.year || ed?.graduation_year || '',
       gpa: ed?.gpa || '',
     })) : [];
     const skills = Array.isArray(p?.skills) ? p.skills.map(s => (typeof s === 'string' ? s : (s?.name || s?.skill || ''))).filter(Boolean) : [];
@@ -170,25 +174,25 @@ const AIResumeBuilder = () => {
       skills: Array.isArray(r.skills) ? r.skills : [],
       experiences,
       ...(education.length ? { education } : {}),
-      achievements: Array.isArray(r.achievements) ? r.achievements : [],
       certifications: Array.isArray(r.certifications) ? r.certifications : [],
       projects: Array.isArray(r.projects) ? r.projects : [],
       languages: Array.isArray(r.languages) ? r.languages : [],
-      linkedin_url: r.links?.linkedin || '',
-      github_url: r.links?.github || '',
-      portfolio_url: r.links?.portfolio || '',
-      website_url: r.links?.website || '',
+      linkedin_url: normalizeOptionalUrl(r.links?.linkedin),
+      github_url: normalizeOptionalUrl(r.links?.github),
+      portfolio_url: normalizeOptionalUrl(r.links?.portfolio),
+      website_url: normalizeOptionalUrl(r.links?.website),
     };
   };
 
-  // Load profile but don't override sample data until user clicks Create Resume
+  // Load profile data on open and use it immediately when available.
   useEffect(() => {
     (async () => {
       try {
         const p = await apiRequest('/auth/jobseeker-profile/');
-        setProfileSnapshot(p || {});
         const mapped = profileToResume(p || {});
         setMappedProfileData(mapped);
+        // Always apply profile data (even partial), replacing the blank initial state
+        setResumeData(prev => ({ ...prev, ...mapped }));
       } catch (e) {
         // ignore; builder stays with sample data
       } finally {
@@ -216,7 +220,7 @@ const AIResumeBuilder = () => {
 
   // Auto-save resume changes back to profile (debounced)
   useEffect(() => {
-    if (initialProfileLoad.current || stage !== 'edit') return;
+    if (initialProfileLoad.current) return;
     let cancelled = false;
     setAutoSaveStatus('saving');
     const t = setTimeout(async () => {
@@ -257,13 +261,6 @@ const AIResumeBuilder = () => {
 
   const handleDataChange = (newData) => {
     setResumeData(newData);
-  };
-
-  const handleCreateResume = () => {
-    if (mappedProfileData) {
-      setResumeData(prev => ({ ...prev, ...mappedProfileData }));
-    }
-    setStage('edit');
   };
 
   const handleSave = async () => {
@@ -447,7 +444,12 @@ const AIResumeBuilder = () => {
       const name = (resumeData?.personal?.fullName || 'resume').replace(/[^a-z0-9\-_]+/gi, '_');
       a.href = urlBlob; a.download = `${name}.pdf`; a.click(); setTimeout(() => URL.revokeObjectURL(urlBlob), 30000);
     } catch (e) {
-      showToast(e?.message || 'Server PDF export failed', 'error');
+      try {
+        await handleExport();
+        showToast('Server PDF export unavailable. Downloaded client-side PDF instead.', 'warning');
+      } catch {
+        showToast(e?.message || 'Server PDF export failed', 'error');
+      }
     }
   };
 
@@ -485,7 +487,7 @@ const AIResumeBuilder = () => {
       description="Create professional resumes with AI assistance"
     >
       <div className="min-h-screen w-full bg-gradient-to-br from-pink-50 via-purple-50 to-cyan-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 flex flex-row items-stretch justify-stretch px-0 py-0">
-        {/* Left Panel - Stage-aware: chooser or editor */}
+        {/* Left Panel - template selection and editing */}
         <div className={`${isMobilePreview ? 'hidden lg:flex' : 'flex'} flex-col w-full lg:w-1/2 border-r border-border bg-card rounded-none shadow-none`}>
           {/* Top Section - Template & Score */}
           <div className="flex-shrink-0 p-6 border-b border-border bg-card">
@@ -526,45 +528,42 @@ const AIResumeBuilder = () => {
               </div>
             </div>
 
-            {stage === 'choose' ? (
-              <>
-                <TemplateCarousel
-                  selectedTemplate={selectedTemplate}
-                  onTemplateChange={handleTemplateChange}
-                  templates={availableTemplates}
-                />
-                <div className="mt-4 flex justify-end">
-                  <Button onClick={handleCreateResume} iconName="FilePlus2" iconPosition="left">
-                    Create Resume
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <SnapshotsPanel
-                  snapshots={snapshots}
-                  loading={snapshotsLoading}
-                  selectedId={selectedSnapshotId}
-                  onCreateNew={createNewSnapshot}
-                  onLoad={loadSnapshot}
-                  onRename={renameSnapshot}
-                  onDuplicate={duplicateSnapshot}
-                  onDelete={deleteSnapshot}
-                />
+            <TemplateCarousel
+              selectedTemplate={selectedTemplate}
+              onTemplateChange={handleTemplateChange}
+              templates={availableTemplates}
+            />
 
-                <div className="mt-8">
-                  <div className="bg-card shadow-lg p-6">
-                    <EditingPanel
-                      resumeData={resumeData}
-                      onDataChange={handleDataChange}
-                    />
-                  </div>
-                </div>
-                <div className="mt-6">
-                  <OptimizationScore score={score} />
-                </div>
-              </>
+            {mappedProfileData && hasMeaningfulResumeData(mappedProfileData) && (
+              <div className="mt-4 rounded-lg border border-success/20 bg-success/5 px-4 py-3 text-sm text-success">
+                Loaded your profile data into the selected template.
+              </div>
             )}
+
+            <div className="mt-8">
+              <SnapshotsPanel
+                snapshots={snapshots}
+                loading={snapshotsLoading}
+                selectedId={selectedSnapshotId}
+                onCreateNew={createNewSnapshot}
+                onLoad={loadSnapshot}
+                onRename={renameSnapshot}
+                onDuplicate={duplicateSnapshot}
+                onDelete={deleteSnapshot}
+              />
+            </div>
+
+            <div className="mt-8">
+              <div className="bg-card shadow-lg p-6">
+                <EditingPanel
+                  resumeData={resumeData}
+                  onDataChange={handleDataChange}
+                />
+              </div>
+            </div>
+            <div className="mt-6">
+              <OptimizationScore score={score} />
+            </div>
           </div>
         </div>
 
@@ -586,22 +585,15 @@ const AIResumeBuilder = () => {
               </div>
               <div className="flex-1 px-6 pb-6">
                 <div className="bg-card border border-border shadow-md w-full h-full overflow-auto">
-                  {stage === 'choose' ? (
-                    <LivePreview
-                      resumeData={resumeData}
-                      selectedTemplate={selectedTemplate}
-                      forceLightTheme={true}
-                      scale={previewScale}
-                      onZoomIn={() => setPreviewScale((s) => Math.min(2, +(s + 0.1).toFixed(2)))}
-                      onZoomOut={() => setPreviewScale((s) => Math.max(0.6, +(s - 0.1).toFixed(2)))}
-                      onToggleMaximize={() => setIsMaximized((m) => !m)}
-                    />
-                  ) : (
-                    <PdfPreview
-                      resumeData={resumeData}
-                      selectedTemplate={selectedTemplate}
-                    />
-                  )}
+                  <LivePreview
+                    resumeData={resumeData}
+                    selectedTemplate={selectedTemplate}
+                    forceLightTheme={true}
+                    scale={previewScale}
+                    onZoomIn={() => setPreviewScale((s) => Math.min(2, +(s + 0.1).toFixed(2)))}
+                    onZoomOut={() => setPreviewScale((s) => Math.max(0.6, +(s - 0.1).toFixed(2)))}
+                    onToggleMaximize={() => setIsMaximized((m) => !m)}
+                  />
                 </div>
               </div>
             </div>

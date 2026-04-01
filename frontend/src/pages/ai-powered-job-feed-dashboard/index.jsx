@@ -1,35 +1,79 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from 'components/layout/MainLayout'
-import SidebarLayout from 'components/layout/SidebarLayout';
 import SearchHeader from 'components/ui/SearchHeader';
-import Header from 'components/ui/Header';
 
-import JobFeedFilters from './components/JobFeedFilters';
 import JobFeedFilterSidebar from './components/JobFeedFilterSidebar';
-
-import FilterChips from './components/FilterChips';
 import SortDropdown from './components/SortDropdown';
 import JobGrid from './components/JobGrid';
-import AdvancedFilterPanel from './components/AdvancedFilterPanel';
 
 import Button from 'components/ui/Button';
 import { clearInvalidTokens } from '../../utils/auth';
 
 // Import Dynamic Services
 import {
-  useRealTimeJobMatching,
-  useDynamicApplications,
-  useRealTimeConnection
+  useRealTimeJobMatching
 } from '../../hooks/useRealTime';
-import dynamicAPI from '../../services/dynamicAPI';
-import realTimeService from '../../services/realTimeService';
 import jobApplicationService from '../../services/jobApplicationService';
 
 // Import JobsAPI service
 import jobsAPI from '../../services/jobsAPI';
 import { useApplications } from '../../hooks/useApplications';
 import QuickApplyModal from 'components/QuickApplyModal';
+
+const transformJob = (job) => ({
+  id: job.job_id,
+  title: job.title,
+  company: {
+    name: job.company || 'Company Name',
+    logo: job.company_logo || null
+  },
+  location: job.location || 'Location not specified',
+  type: job.job_type || job.employment_type || 'Full-time',
+  employment_mode: job.employment_mode || null,
+  experience_level: job.experience_level || null,
+  salary: {
+    min: job.salary_min || 0,
+    max: job.salary_max || 0
+  },
+  skills: Array.isArray(job.skills_required)
+    ? job.skills_required
+    : (job.skills ? job.skills.split(',').map(s => s.trim()) : []),
+  matchPercentage: job.match_score != null ? Math.min(99, Math.max(30, job.match_score)) : 75,
+  postedTime: job.date_posted || job.date_scraped || 'Recently',
+  isBookmarked: false,
+  description: job.description || 'No description available',
+  url: job.url,
+  apply_url: job.apply_url || job.application_url || null,
+  source: job.source,
+  source_type: job.source_type || null,
+  application_mode: job.application_mode || null
+});
+
+const getLocationType = (job) => {
+  const mode = (job.employment_mode || '').toLowerCase();
+  const location = (job.location || '').toLowerCase();
+
+  if (mode.includes('remote') || location.includes('remote')) return 'remote';
+  if (mode.includes('hybrid')) return 'hybrid';
+  if (mode.includes('on-site') || mode.includes('onsite') || location.includes('on-site') || location.includes('onsite')) return 'on-site';
+  return 'on-site';
+};
+
+const matchesPercentageRange = (percentage, range) => {
+  switch (range) {
+    case '90-100':
+      return percentage >= 90;
+    case '75-89':
+      return percentage >= 75 && percentage <= 89;
+    case '60-74':
+      return percentage >= 60 && percentage <= 74;
+    case '0-59':
+      return percentage < 60;
+    default:
+      return true;
+  }
+};
 
 const AIJobFeedDashboard = () => {
   // Applications hook for quick apply
@@ -43,44 +87,24 @@ const AIJobFeedDashboard = () => {
   const [hasMore, setHasMore] = useState(true);
   const [currentSort, setCurrentSort] = useState('relevance');
   const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
-  const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
   // Real-time features state
   const [realTimeMode, setRealTimeMode] = useState(false);
-  const [jobScores, setJobScores] = useState(new Map());
   const [userProfile, setUserProfile] = useState(null);
 
   // Real-time hooks
-  const { isConnected, connectionStatus } = useRealTimeConnection();
   const {
-    isMatching,
     matches,
-    startMatching,
     stopMatching,
-    getLiveScores
   } = useRealTimeJobMatching(userProfile);
-  const { applyDynamically, applications } = useDynamicApplications();
 
   const [activeFilters, setActiveFilters] = useState({
-    location: [],
-    salary: [],
-    experience: [],
-    jobType: []
-  });
-
-  const [advancedFilters, setAdvancedFilters] = useState({
-    location: '',
-    salaryRange: '',
-    experienceLevel: '',
-    jobTypes: [],
-    workMode: '',
-    companySize: '',
-    skills: '',
-    benefits: [],
-    postedWithin: '',
-    matchPercentage: 0
+    role: '',
+    company: '',
+    matchRange: 'all',
+    locationType: 'all'
   });
 
   // State for handling API errors
@@ -107,89 +131,25 @@ const AIJobFeedDashboard = () => {
 
     setLoading(true);
     try {
-      if (realTimeModeRef.current && userProfileRef.current) {
-        // Use real-time job matching
-        console.log('🚀 Loading jobs with real-time matching...');
-        await startMatching();
+      // Use profile-matched jobs endpoint (falls back to regular if unauthenticated)
+      const response = await jobsAPI.fetchMatchedJobs({
+        page: 1,
+        pageSize: 20,
+        country: 'india'
+      });
 
-        // Get live scores for existing jobs
-        const liveScores = await getLiveScores({
-          page: 1,
-          pageSize: 20,
-          ordering: '-match_score'
-        });
-
-        if (liveScores?.results) {
-          const transformedJobs = liveScores.results.map(job => ({
-            id: job.job_id,
-            title: job.title,
-            company: {
-              name: job.company || 'Company Name',
-              logo: job.company_logo || null // No fallback static images
-            },
-            location: job.location || 'Location not specified',
-            type: job.employment_type || 'Full-time',
-            salary: {
-              min: job.salary_min || 0,
-              max: job.salary_max || 0
-            },
-            skills: job.skills ? job.skills.split(',').map(s => s.trim()) : [],
-            matchPercentage: Math.round((job.match_score || 0) * 100),
-            postedTime: job.date_posted || job.date_scraped || 'Recently',
-            isBookmarked: false,
-            description: job.description || 'No description available',
-            realTimeScore: job.match_score,
-            isRealTime: true
-          }));
-          setJobs(transformedJobs);
-          setApiError(null); // Clear any previous errors
-        }
-      } else {
-        // Fetch regular jobs from the backend
-        const response = await jobsAPI.fetchJobs({
-          page: 1,
-          pageSize: 20,
-          ordering: '-created_at' // Most recent first
-        });
-
-        // Transform backend data to match frontend format
-        const transformedJobs = response.results?.map(job => ({
-          id: job.job_id,
-          title: job.title,
-          company: {
-            name: job.company || 'Company Name',
-            logo: job.company_logo || null // No fallback static images
-          },
-          location: job.location || 'Location not specified',
-          type: job.employment_type || 'Full-time',
-          salary: {
-            min: job.salary_min || 0,
-            max: job.salary_max || 0
-          },
-          skills: job.skills ? job.skills.split(',').map(s => s.trim()) : [],
-          matchPercentage: Math.floor(Math.random() * 30) + 70, // Simulate AI matching
-          postedTime: job.date_posted || job.date_scraped || 'Recently',
-          isBookmarked: false,
-          description: job.description || 'No description available',
-          url: job.url,
-          apply_url: job.apply_url || job.application_url || null,
-          source: job.source,
-          source_type: job.source_type || null,
-          application_mode: job.application_mode || null
-        })) || [];
-
-        setJobs(transformedJobs);
-        setHasMore(response.next !== null);
-        setApiError(null); // Clear any previous errors
-      }
+      const results = response.results || [];
+      setJobs(results.map(transformJob));
+      setHasMore(response.next != null);
+      setApiError(null);
     } catch (error) {
       console.error('Failed to load jobs:', error);
       setApiError('Unable to load jobs. Please check your connection and try again.');
-      setJobs([]); // Set empty array instead of mock data
+      setJobs([]);
     } finally {
       setLoading(false);
     }
-  }, [startMatching, getLiveScores]);
+  }, []);
 
   // Initial load effect (run only once on mount)
   useEffect(() => {
@@ -226,31 +186,7 @@ const AIJobFeedDashboard = () => {
       });
 
       // Transform backend data to match frontend format
-      const transformedJobs = response.results?.map(job => ({
-        id: job.job_id,
-        title: job.title,
-        company: {
-          name: job.company || 'Company Name',
-          logo: job.company_logo || null // No fallback static images
-        },
-        location: job.location || 'Location not specified',
-        type: job.employment_type || 'Full-time',
-        salary: {
-          min: job.salary_min || 0,
-          max: job.salary_max || 0
-        },
-        skills: job.skills ? job.skills.split(',').map(s => s.trim()) : [],
-        matchPercentage: Math.floor(Math.random() * 30) + 70, // Simulate AI matching
-        postedTime: job.date_posted || job.date_scraped || 'Recently',
-        isBookmarked: false,
-        description: job.description || 'No description available',
-        url: job.url,
-        apply_url: job.apply_url || job.application_url || null,
-        source: job.source,
-        source_type: job.source_type || null,
-        application_mode: job.application_mode || null
-      })) || [];
-
+      const transformedJobs = response.results?.map(transformJob) || [];
       setJobs(transformedJobs);
       setHasMore(response.next !== null);
       setApiError(null); // Clear any previous errors
@@ -272,39 +208,10 @@ const AIJobFeedDashboard = () => {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      const response = await jobsAPI.fetchJobs({
-        page: 1,
-        pageSize: 20,
-        ordering: '-created_at'
-      });
-
-      const transformedJobs = response.results?.map(job => ({
-        id: job.job_id,
-        title: job.title,
-        company: {
-          name: job.company || 'Company Name',
-          logo: job.company_logo || null // No fallback static images
-        },
-        location: job.location || 'Location not specified',
-        type: job.employment_type || 'Full-time',
-        salary: {
-          min: job.salary_min || 0,
-          max: job.salary_max || 0
-        },
-        skills: job.skills ? job.skills.split(',').map(s => s.trim()) : [],
-        matchPercentage: Math.floor(Math.random() * 30) + 70,
-        postedTime: job.date_posted || job.date_scraped || 'Recently',
-        isBookmarked: false,
-        description: job.description || 'No description available',
-        url: job.url,
-        apply_url: job.apply_url || job.application_url || null,
-        source: job.source,
-        source_type: job.source_type || null,
-        application_mode: job.application_mode || null
-      })) || [];
-
-      setJobs(transformedJobs);
-      setHasMore(response.next !== null);
+      const response = await jobsAPI.fetchMatchedJobs({ page: 1, pageSize: 20, country: 'india' });
+      const results = response.results || [];
+      setJobs(results.map(transformJob));
+      setHasMore(response.next != null);
     } catch (error) {
       console.error('Failed to refresh jobs:', error);
     } finally {
@@ -313,85 +220,14 @@ const AIJobFeedDashboard = () => {
   }, []);
 
   // Handle filter changes
-  const handleFilterChange = useCallback(async (filters) => {
+  const handleFilterChange = useCallback((filters) => {
     setActiveFilters(filters);
-    setLoading(true);
-
-    try {
-      const params = {
-        page: 1,
-        pageSize: 20,
-        ordering: '-created_at'
-      };
-
-      // Add location filter
-      if (filters.location && filters.location.length > 0) {
-        params.location = filters.location.join(',');
-      }
-
-      // Add employment type filter
-      if (filters.jobType && filters.jobType.length > 0) {
-        params.employment_type = filters.jobType.join(',');
-      }
-
-      const response = await jobsAPI.fetchJobs(params);
-
-      const transformedJobs = response.results?.map(job => ({
-        id: job.job_id,
-        title: job.title,
-        company: {
-          name: job.company || 'Company Name',
-          logo: job.company_logo || null // No fallback static images
-        },
-        location: job.location || 'Location not specified',
-        type: job.employment_type || 'Full-time',
-        salary: {
-          min: job.salary_min || 0,
-          max: job.salary_max || 0
-        },
-        skills: job.skills ? job.skills.split(',').map(s => s.trim()) : [],
-        matchPercentage: Math.floor(Math.random() * 30) + 70,
-        postedTime: job.date_posted || job.date_scraped || 'Recently',
-        isBookmarked: false,
-        description: job.description || 'No description available',
-        url: job.url,
-        apply_url: job.apply_url || job.application_url || null,
-        source: job.source,
-        source_type: job.source_type || null,
-        application_mode: job.application_mode || null
-      })) || [];
-
-      setJobs(transformedJobs);
-      setHasMore(response.next !== null);
-    } catch (error) {
-      console.error('Failed to apply filters:', error);
-    } finally {
-      setLoading(false);
-    }
   }, []);
 
   // Handle sort change
   const handleSortChange = useCallback((sortType) => {
     setCurrentSort(sortType);
-
-    const sortedJobs = [...jobs].sort((a, b) => {
-      switch (sortType) {
-        case 'match':
-          return b.matchPercentage - a.matchPercentage;
-        case 'salary-high':
-          return b.salary.max - a.salary.max;
-        case 'salary-low':
-          return a.salary.min - b.salary.min;
-        case 'date':
-          // Mock date sorting
-          return Math.random() - 0.5;
-        default:
-          return 0;
-      }
-    });
-
-    setJobs(sortedJobs);
-  }, [jobs]);
+  }, []);
 
   // Handle bookmark
   const handleBookmark = useCallback((jobId, isBookmarked) => {
@@ -549,29 +385,13 @@ const AIJobFeedDashboard = () => {
       });
 
       // Transform backend data to match frontend format
-      const transformedJobs = response.results?.map(job => ({
-        id: job.job_id,
-        title: job.title,
-        company: {
-          name: job.company || 'Company Name',
-          logo: job.company_logo || null // No fallback static images
-        },
-        location: job.location || 'Location not specified',
-        type: job.employment_type || 'Full-time',
-        salary: {
-          min: job.salary_min || 0,
-          max: job.salary_max || 0
-        },
-        skills: job.skills ? job.skills.split(',').map(s => s.trim()) : [],
-        matchPercentage: Math.floor(Math.random() * 30) + 70,
-        postedTime: job.date_posted || job.date_scraped || 'Recently',
-        isBookmarked: false,
-        description: job.description || 'No description available',
-        url: job.url,
-        source: job.source
-      })) || [];
+      const transformedJobs = response.results?.map(transformJob) || [];
 
-      setJobs(prevJobs => [...prevJobs, ...transformedJobs]);
+      setJobs(prevJobs => {
+        const existingIds = new Set(prevJobs.map(job => job.id));
+        const newJobs = transformedJobs.filter(job => !existingIds.has(job.id));
+        return [...prevJobs, ...newJobs];
+      });
       setHasMore(response.next !== null);
       setApiError(null); // Clear any previous errors
     } catch (error) {
@@ -585,24 +405,50 @@ const AIJobFeedDashboard = () => {
   // Clear all filters
   const handleClearAllFilters = useCallback(() => {
     setActiveFilters({
-      location: [],
-      salary: [],
-      experience: [],
-      jobType: []
-    });
-    setAdvancedFilters({
-      location: '',
-      salaryRange: '',
-      experienceLevel: '',
-      jobTypes: [],
-      workMode: '',
-      companySize: '',
-      skills: '',
-      benefits: [],
-      postedWithin: '',
-      matchPercentage: 0
+      role: '',
+      company: '',
+      matchRange: 'all',
+      locationType: 'all'
     });
   }, []);
+
+  const filteredJobs = useMemo(() => {
+    let result = [...jobs];
+
+    if (activeFilters.role) {
+      const roleTerm = activeFilters.role.toLowerCase();
+      result = result.filter(job => (job.title || '').toLowerCase().includes(roleTerm));
+    }
+
+    if (activeFilters.company) {
+      const companyTerm = activeFilters.company.toLowerCase();
+      result = result.filter(job => (job.company?.name || '').toLowerCase().includes(companyTerm));
+    }
+
+    if (activeFilters.matchRange && activeFilters.matchRange !== 'all') {
+      result = result.filter(job => matchesPercentageRange(job.matchPercentage || 0, activeFilters.matchRange));
+    }
+
+    if (activeFilters.locationType && activeFilters.locationType !== 'all') {
+      result = result.filter(job => getLocationType(job) === activeFilters.locationType);
+    }
+
+    return result.sort((a, b) => {
+      switch (currentSort) {
+        case 'match':
+        case 'relevance':
+          return (b.matchPercentage || 0) - (a.matchPercentage || 0);
+        case 'salary-high':
+          return (b.salary?.max || 0) - (a.salary?.max || 0);
+        case 'salary-low':
+          return (a.salary?.min || 0) - (b.salary?.min || 0);
+        case 'company':
+          return (a.company?.name || '').localeCompare(b.company?.name || '');
+        default:
+          return 0;
+      }
+    });
+  }, [jobs, activeFilters, currentSort]);
 
   return (
     <MainLayout
@@ -622,7 +468,7 @@ const AIJobFeedDashboard = () => {
           <JobFeedFilterSidebar
             filters={activeFilters}
             onFilterChange={(key, value) => setActiveFilters(prev => ({ ...prev, [key]: value }))}
-            onApplyFilters={filters => setActiveFilters(filters)}
+            onApplyFilters={handleFilterChange}
             onClearFilters={handleClearAllFilters}
           />
 
@@ -644,33 +490,9 @@ const AIJobFeedDashboard = () => {
                   </p>
                 </div>
 
-                {/* Real-time status and controls */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                    <span className="text-sm font-medium">
-                      {isConnected ? 'Connected' : 'Disconnected'}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={handleRealTimeModeToggle}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${realTimeMode
-                      ? 'bg-green-500 text-white hover:bg-green-600'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
-                  >
-                    {realTimeMode ? '⚡ Real-Time ON' : '🔄 Enable Real-Time'}
-                  </button>
-
-                  {realTimeMode && (
-                    <div className="text-sm text-gray-600">
-                      {matches.length > 0 ? `${matches.length} live matches` : 'Searching...'}
-                    </div>
-                  )}
-                </div>
-
                 <div className="flex items-center space-x-3">
+                  <SortDropdown currentSort={currentSort} onSortChange={handleSortChange} />
+
                   {/* Refresh Button */}
                   <Button
                     variant="outline"
@@ -726,7 +548,7 @@ const AIJobFeedDashboard = () => {
 
             {/* Job Grid */}
             <JobGrid
-              jobs={jobs}
+              jobs={filteredJobs}
               loading={loading}
               hasMore={hasMore}
               onLoadMore={handleLoadMore}
@@ -734,32 +556,6 @@ const AIJobFeedDashboard = () => {
               onApply={handleApply}
               onQuickApply={handleQuickApply}
               showBookmarkedOnly={showBookmarkedOnly}
-            />
-
-            {/* Advanced Filter Panel */}
-            <AdvancedFilterPanel
-              isOpen={isAdvancedFilterOpen}
-              onClose={() => setIsAdvancedFilterOpen(false)}
-              filters={advancedFilters}
-              onFiltersChange={setAdvancedFilters}
-              onApplyFilters={() => {
-                // Apply advanced filters logic
-                console.log('Applying advanced filters:', advancedFilters);
-              }}
-              onClearFilters={() => {
-                setAdvancedFilters({
-                  location: '',
-                  salaryRange: '',
-                  experienceLevel: '',
-                  jobTypes: [],
-                  workMode: '',
-                  companySize: '',
-                  skills: '',
-                  benefits: [],
-                  postedWithin: '',
-                  matchPercentage: 0
-                });
-              }}
             />
           </div>
         </div>

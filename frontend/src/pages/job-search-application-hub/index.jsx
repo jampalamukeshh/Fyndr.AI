@@ -400,11 +400,12 @@ const JobSearchApplicationHub = () => {
     <MainLayout
       title="Job Search & Application Hub"
       description="Discover and apply for jobs with AI-powered matching and comprehensive search capabilities"
+      fullWidth
       noPadding
     >
       <SidebarLayout className="!border-l-0">
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-background min-h-screen">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6 bg-background min-h-screen">
           <div className="grid grid-cols-1 gap-6">
             {/* Search Section */}
             <div className="mb-6">
@@ -427,154 +428,50 @@ const JobSearchApplicationHub = () => {
               />
             </div>
 
-            {/* View Toggle */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-1 glassmorphic-surface rounded-lg p-1">
+            {/* View Toggle & Controls */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
                 <button
                   onClick={() => setCurrentView('search')}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${currentView === 'search' ? 'bg-primary/20 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-white/10'
-                    }`}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 text-sm font-medium ${currentView === 'search' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                  <Icon name="Search" size={16} />
+                  <Icon name="Search" size={15} />
                   <span>Search Jobs</span>
                 </button>
                 <button
                   onClick={() => setCurrentView('saved')}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${currentView === 'saved' ? 'bg-primary/20 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-white/10'
-                    }`}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 text-sm font-medium ${currentView === 'saved' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                  <Icon name="Heart" size={16} />
-                  <span>Saved Jobs</span>
+                  <Icon name="Heart" size={15} />
+                  <span>Saved</span>
                   {savedJobs.length > 0 && (
-                    <span className="bg-error text-error-foreground text-xs rounded-full px-2 py-0.5">
+                    <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
                       {savedJobs.length}
                     </span>
                   )}
                 </button>
               </div>
 
-              {/* Real-time controls and insights */}
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                  <span className="text-sm font-medium">
-                    {isConnected ? 'Connected' : 'Disconnected'}
-                  </span>
-                </div>
-
-                <button
-                  onClick={handleRealTimeModeToggle}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${realTimeMode
-                    ? 'bg-green-500 text-white hover:bg-green-600'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                >
-                  {realTimeMode ? '⚡ Live Matching' : '🔄 Enable Live Matching'}
-                </button>
-
-                {realTimeMode && (
-                  <div className="flex items-center space-x-4 text-sm">
-                    {matches.length > 0 && (
-                      <div className="text-green-600 font-medium">
-                        {matches.length} live matches
-                      </div>
-                    )}
-                    <div className="text-blue-600">
-                      {realTimeStats.newJobs} new jobs
-                    </div>
-                    <div className="text-purple-600">
-                      {realTimeStats.matchingJobs} matches
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {currentView === 'search' && (
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => setIsFilterSidebarOpen(true)}
-                    iconName="Filter"
+                    iconName="SlidersHorizontal"
                     iconPosition="left"
                     className="lg:hidden"
                   >
                     Filters
                   </Button>
-
-                  <SortDropdown
-                    currentSort={sortBy}
-                    onSortChange={handleSortChange}
-                  />
+                  <SortDropdown currentSort={sortBy} onSortChange={handleSortChange} />
                 </div>
               )}
             </div>
 
-            {/* Real-time insights panel */}
-            {realTimeMode && dynamicInsights && (
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <h3 className="text-lg font-semibold text-green-700">Live Market Insights</h3>
-                  </div>
-                  <span className="text-sm text-green-600">
-                    Updated {new Date().toLocaleTimeString()}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Average Salary</h4>
-                    <p className="text-2xl font-bold text-green-600">
-                      ${Math.round(dynamicInsights.salaryTrends.average).toLocaleString()}
-                    </p>
-                  </div>
-
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Top Skill</h4>
-                    <p className="text-lg font-semibold text-blue-600">
-                      {Object.keys(dynamicInsights.topSkills).sort((a, b) =>
-                        dynamicInsights.topSkills[b] - dynamicInsights.topSkills[a]
-                      )[0] || 'N/A'}
-                    </p>
-                  </div>
-
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Active Jobs</h4>
-                    <p className="text-2xl font-bold text-purple-600">{jobs.length}</p>
-                  </div>
-
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Match Rate</h4>
-                    <p className="text-2xl font-bold text-orange-600">
-                      {Math.round((realTimeStats.matchingJobs / Math.max(jobs.length, 1)) * 100)}%
-                    </p>
-                  </div>
-                </div>
-
-                {/* Live updates feed */}
-                {liveJobUpdates.length > 0 && (
-                  <div className="mt-4 bg-white/60 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Live Updates</h4>
-                    <div className="space-y-2 max-h-24 overflow-y-auto">
-                      {liveJobUpdates.slice(0, 3).map(update => (
-                        <div key={update.id} className="text-sm text-gray-600 flex items-center space-x-2">
-                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                          <span>{update.message}</span>
-                          <span className="text-xs text-gray-400">
-                            {new Date(update.timestamp).toLocaleTimeString()}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* Active Filters */}
             {currentView === 'search' && Object.keys(filters).length > 0 && (
-              <div className="mb-6">
+              <div className="mb-4">
                 <FilterChips
                   activeFilters={filters}
                   onRemoveFilter={handleRemoveFilter}

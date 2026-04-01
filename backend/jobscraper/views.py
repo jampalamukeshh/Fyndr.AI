@@ -1,5 +1,6 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Count
@@ -164,6 +165,78 @@ class JobPostingViewSet(viewsets.ReadOnlyModelViewSet):
         self.request.query_params['country'] = 'india'
         
         return self.list(request)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def matched_jobs(self, request):
+        """Return jobs ranked by match score against the authenticated user's profile."""
+        from fyndr_auth.models import JobSeekerProfile
+        from fyndr_auth.utils.profile_utils import normalize_skills_field
+
+        try:
+            profile = JobSeekerProfile.objects.get(user=request.user)
+        except JobSeekerProfile.DoesNotExist:
+            return self.list(request)
+
+        # Gather profile signals
+        profile_skills_raw = profile.skills or []
+        profile_skill_names, _ = normalize_skills_field(profile_skills_raw)
+        profile_skills_lower = {s.lower() for s in profile_skill_names if s}
+
+        preferred_roles = profile.preferred_roles or []
+        job_title = (profile.job_title or '').lower()
+        location = (profile.location or '').lower()
+        years_exp = profile.years_of_experience or 0
+
+        queryset = self.get_queryset()
+
+        # Annotate each job with a Python-computed match score then sort
+        jobs_with_scores = []
+        for job in queryset[:500]:  # cap for performance
+            score = 0
+
+            # Title/role match (up to 40 pts)
+            title_lower = (job.title or '').lower()
+            desc_lower = (job.description or '').lower()
+            if job_title and job_title in title_lower:
+                score += 40
+            elif any(role.lower() in title_lower for role in preferred_roles):
+                score += 35
+            elif any(word in title_lower for word in job_title.split() if len(word) > 2):
+                score += 20
+
+            # Skills match (up to 40 pts)
+            job_text = f"{job.title} {job.description or ''} {job.requirements or ''}".lower()
+            matched = sum(1 for sk in profile_skills_lower if sk in job_text)
+            if profile_skills_lower:
+                skill_ratio = matched / len(profile_skills_lower)
+                score += int(skill_ratio * 40)
+
+            # Location match (up to 10 pts)
+            job_loc = (job.location or '').lower()
+            if location and location in job_loc:
+                score += 10
+            elif location and any(w in job_loc for w in location.split() if len(w) > 2):
+                score += 5
+
+            # Experience match (up to 10 pts) — basic check
+            score += 10  # baseline; could be refined
+
+            # Clamp between 30 and 99
+            score = max(30, min(99, score))
+            jobs_with_scores.append((score, job))
+
+        # Sort by score descending
+        jobs_with_scores.sort(key=lambda x: x[0], reverse=True)
+
+        # Paginate manually
+        page_jobs = [j for _, j in jobs_with_scores]
+        serializer = JobPostingListSerializer(page_jobs[:50], many=True, context={'request': request})
+        data = serializer.data
+        # Attach match_score to each job
+        for i, item in enumerate(data):
+            item['match_score'] = jobs_with_scores[i][0]
+
+        return Response({'results': data, 'total': len(page_jobs)})
 
 
 class RecruiterJobViewSet(viewsets.ModelViewSet):

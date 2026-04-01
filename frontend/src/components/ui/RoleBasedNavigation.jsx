@@ -40,12 +40,6 @@ const RoleBasedNavigation = ({ className = '' }) => {
       color: 'text-accent',
       items: [
         {
-          label: 'Learn',
-          path: '/course-detail-learning-interface',
-          icon: 'BookOpen',
-          description: 'Course learning and skill development'
-        },
-        {
           label: 'AI Coach',
           path: '/ai-career-coach-chat-interface',
           icon: 'MessageCircle',

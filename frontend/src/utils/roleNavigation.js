@@ -25,18 +25,6 @@ export const JOB_SEEKER_NAV = {
       path: ROUTES_C.JOB_SEARCH,
       icon: 'Search',
       description: 'Advanced job search and filtering'
-    },
-    {
-      label: 'Learn',
-      path: ROUTES_C.COURSE_DETAIL,
-      icon: 'BookOpen',
-      description: 'Skill development courses'
-    },
-    {
-      label: 'Practice',
-      path: ROUTES_D.INTERVIEW_PRACTICE,
-      icon: 'Video',
-      description: 'Interview practice sessions'
     }
   ],
   resources: [
@@ -51,36 +39,6 @@ export const JOB_SEEKER_NAV = {
       path: ROUTES_B.RESUME_BUILDER,
       description: 'Create an ATS-optimized resume with AI assistance',
       icon: 'FileText'
-    },
-    {
-      label: 'Resource Library',
-      path: ROUTES_D.RESOURCE_LIBRARY,
-      description: 'Articles, guides and templates for your job search',
-      icon: 'Library'
-    },
-    {
-      label: 'Mentorship',
-      path: ROUTES_D.MENTORSHIP,
-      description: 'Connect with industry mentors',
-      icon: 'Users'
-    },
-    {
-      label: 'Alumni Network',
-      path: ROUTES_D.ALUMNI_NETWORK,
-      description: 'Connect with alumni for referrals',
-      icon: 'Network'
-    },
-    {
-      label: 'Virtual Career Fair',
-      path: ROUTES_D.CAREER_FAIR,
-      description: 'Connect with employers in our virtual space',
-      icon: 'Globe'
-    },
-    {
-      label: 'Hackathons',
-      path: ROUTES_D.HACKATHONS,
-      description: 'Showcase your skills in tech competitions',
-      icon: 'Code'
     }
   ],
   profile: [
@@ -163,18 +121,6 @@ export const RECRUITER_NAV = {
       path: ROUTES_C.RECRUITER_DASHBOARD,
       description: 'Recruitment metrics and insights',
       icon: 'TrendingUp'
-    },
-    {
-      label: 'Virtual Career Fair',
-      path: ROUTES_D.CAREER_FAIR,
-      description: 'Host virtual recruitment events',
-      icon: 'Globe'
-    },
-    {
-      label: 'Resource Library',
-      path: ROUTES_D.RESOURCE_LIBRARY,
-      description: 'Best practices and recruitment guides',
-      icon: 'Library'
     }
   ],
   profile: [

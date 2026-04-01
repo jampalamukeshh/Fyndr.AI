@@ -9,26 +9,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("fyndr_auth", "0008_rename_company_name_recruiterprofile_resume_filename_and_more"),
+        ("fyndr_auth", "0006_oauthtoken"),
     ]
 
     operations = [
-        migrations.CreateModel(
-            name="OAuthToken",
-            fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("provider", models.CharField(max_length=50)),
-                ("sub", models.CharField(blank=True, max_length=255)),
-                ("scope", models.TextField(blank=True)),
-                ("access_token_encrypted", models.BinaryField(blank=True, null=True)),
-                ("refresh_token_encrypted", models.BinaryField(blank=True, null=True)),
-                ("token_type", models.CharField(blank=True, max_length=50)),
-                ("expires_at", models.DateTimeField(blank=True, null=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="oauth_tokens", to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                "unique_together": {("user", "provider")},
-            },
-        ),
+        # OAuthToken was already created in 0006_oauthtoken; this migration is a no-op to resolve the merge conflict.
     ]

@@ -1,63 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import Input from 'components/ui/Input';
-import { Checkbox } from 'components/ui/Checkbox';
 import Select from 'components/ui/Select';
 
-const jobTypeOptions = [
-    { value: 'full-time', label: 'Full-time' },
-    { value: 'part-time', label: 'Part-time' },
-    { value: 'contract', label: 'Contract' },
-    { value: 'freelance', label: 'Freelance' },
-    { value: 'internship', label: 'Internship' }
+const matchRangeOptions = [
+    { value: 'all', label: 'Any match' },
+    { value: '90-100', label: '90% - 100%' },
+    { value: '75-89', label: '75% - 89%' },
+    { value: '60-74', label: '60% - 74%' },
+    { value: '0-59', label: 'Below 60%' }
 ];
 
-const experienceOptions = [
-    { value: '0-1', label: 'Entry Level (0-1 years)' },
-    { value: '2-4', label: 'Mid Level (2-4 years)' },
-    { value: '5-7', label: 'Senior Level (5-7 years)' },
-    { value: '8+', label: 'Expert Level (8+ years)' }
-];
-
-const companySizeOptions = [
-    { value: 'startup', label: 'Startup (1-50)' },
-    { value: 'small', label: 'Small (51-200)' },
-    { value: 'medium', label: 'Medium (201-1000)' },
-    { value: 'large', label: 'Large (1000+)' }
-];
-
-const industryOptions = [
-    { value: 'technology', label: 'Technology' },
-    { value: 'finance', label: 'Finance' },
-    { value: 'healthcare', label: 'Healthcare' },
-    { value: 'education', label: 'Education' },
-    { value: 'retail', label: 'Retail' },
-    { value: 'manufacturing', label: 'Manufacturing' }
-];
-
-const benefitOptions = [
-    'Health Insurance',
-    'Dental Insurance',
-    'Vision Insurance',
-    '401(k)',
-    'Paid Time Off',
-    'Remote Work',
-    'Flexible Hours',
-    'Stock Options',
-    'Professional Development',
-    'Gym Membership'
-];
-
-const postedDateOptions = [
-    { value: '24h', label: 'Last 24 hours' },
-    { value: '7d', label: 'Last 7 days' },
-    { value: '30d', label: 'Last 30 days' },
-    { value: 'any', label: 'Any time' }
+const locationTypeOptions = [
+    { value: 'all', label: 'Any location type' },
+    { value: 'remote', label: 'Remote' },
+    { value: 'hybrid', label: 'Hybrid' },
+    { value: 'on-site', label: 'On-site' }
 ];
 
 const JobFeedFilterSidebar = ({ filters, onFilterChange, onApplyFilters, onClearFilters }) => {
     const [localFilters, setLocalFilters] = useState(filters || {});
+
+    useEffect(() => {
+        setLocalFilters(filters || {});
+    }, [filters]);
 
     const handleFilterChange = (key, value) => {
         setLocalFilters(prev => ({ ...prev, [key]: value }));
@@ -81,122 +48,51 @@ const JobFeedFilterSidebar = ({ filters, onFilterChange, onApplyFilters, onClear
                     <h2 className="text-lg font-semibold text-foreground">Filters</h2>
                 </div>
                 <div className="space-y-6">
-                    {/* Salary Range */}
+                    {/* Job Role */}
                     <div>
-                        <h3 className="font-medium text-foreground mb-3">Salary Range</h3>
-                        <div className="space-y-3">
-                            <Input
-                                type="number"
-                                placeholder="Min salary (K)"
-                                value={localFilters.salaryMin || ''}
-                                onChange={e => handleFilterChange('salaryMin', e.target.value)}
-                            />
-                            <Input
-                                type="number"
-                                placeholder="Max salary (K)"
-                                value={localFilters.salaryMax || ''}
-                                onChange={e => handleFilterChange('salaryMax', e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    {/* Job Type */}
-                    <div>
-                        <h3 className="font-medium text-foreground mb-3">Job Type</h3>
-                        <Select
-                            options={jobTypeOptions}
-                            value={localFilters.jobType || ''}
-                            onChange={value => handleFilterChange('jobType', value)}
-                            placeholder="Select job type"
-                        />
-                    </div>
-                    {/* Experience Level */}
-                    <div>
-                        <h3 className="font-medium text-foreground mb-3">Experience Level</h3>
-                        <Select
-                            options={experienceOptions}
-                            value={localFilters.experience || ''}
-                            onChange={value => handleFilterChange('experience', value)}
-                            placeholder="Select experience level"
-                        />
-                    </div>
-                    {/* Remote Work */}
-                    <div>
-                        <Checkbox
-                            label="Remote work available"
-                            checked={localFilters.remote || false}
-                            onChange={e => handleFilterChange('remote', e.target.checked)}
-                        />
-                    </div>
-                    {/* Company Size */}
-                    <div>
-                        <h3 className="font-medium text-foreground mb-3">Company Size</h3>
-                        <Select
-                            options={companySizeOptions}
-                            value={localFilters.companySize || ''}
-                            onChange={value => handleFilterChange('companySize', value)}
-                            placeholder="Select company size"
-                        />
-                    </div>
-                    {/* Industry */}
-                    <div>
-                        <h3 className="font-medium text-foreground mb-3">Industry</h3>
-                        <Select
-                            options={industryOptions}
-                            value={localFilters.industry || ''}
-                            onChange={value => handleFilterChange('industry', value)}
-                            placeholder="Select industry"
-                        />
-                    </div>
-                    {/* Skills */}
-                    <div>
-                        <h3 className="font-medium text-foreground mb-3">Required Skills</h3>
+                        <h3 className="font-medium text-foreground mb-3">Job Role</h3>
                         <Input
                             type="text"
-                            placeholder="e.g., React, JavaScript, Python"
-                            value={localFilters.skills || ''}
-                            onChange={e => handleFilterChange('skills', e.target.value)}
+                            placeholder="e.g. AI Engineer, Backend Developer"
+                            value={localFilters.role || ''}
+                            onChange={e => handleFilterChange('role', e.target.value)}
                         />
                     </div>
-                    {/* Benefits */}
+
+                    {/* Company */}
                     <div>
-                        <h3 className="font-medium text-foreground mb-3">Benefits</h3>
-                        <div className="space-y-2 max-h-40 overflow-y-auto">
-                            {benefitOptions.map(benefit => (
-                                <Checkbox
-                                    key={benefit}
-                                    label={benefit}
-                                    checked={localFilters.benefits?.includes(benefit) || false}
-                                    onChange={e => {
-                                        const currentBenefits = localFilters.benefits || [];
-                                        if (e.target.checked) {
-                                            handleFilterChange('benefits', [...currentBenefits, benefit]);
-                                        } else {
-                                            handleFilterChange('benefits', currentBenefits.filter(b => b !== benefit));
-                                        }
-                                    }}
-                                />
-                            ))}
-                        </div>
+                        <h3 className="font-medium text-foreground mb-3">Company</h3>
+                        <Input
+                            type="text"
+                            placeholder="e.g. Groww, CRED, Databricks"
+                            value={localFilters.company || ''}
+                            onChange={e => handleFilterChange('company', e.target.value)}
+                        />
                     </div>
-                    {/* Posted Date */}
+
+                    {/* Match Percentage */}
                     <div>
-                        <h3 className="font-medium text-foreground mb-3">Posted Date</h3>
-                        <div className="space-y-2">
-                            {postedDateOptions.map(option => (
-                                <Checkbox
-                                    key={option.value}
-                                    label={option.label}
-                                    checked={localFilters.postedDate === option.value}
-                                    onChange={e => {
-                                        if (e.target.checked) {
-                                            handleFilterChange('postedDate', option.value);
-                                        } else {
-                                            handleFilterChange('postedDate', null);
-                                        }
-                                    }}
-                                />
-                            ))}
-                        </div>
+                        <h3 className="font-medium text-foreground mb-3">Match Percentage</h3>
+                        <Select
+                            options={matchRangeOptions}
+                            value={localFilters.matchRange || 'all'}
+                            onChange={value => handleFilterChange('matchRange', value)}
+                            placeholder="Select match range"
+                        />
+                    </div>
+
+                    {/* Location Type */}
+                    <div>
+                        <Select
+                            options={locationTypeOptions}
+                            value={localFilters.locationType || 'all'}
+                            onChange={value => handleFilterChange('locationType', value)}
+                            placeholder="Select location type"
+                        />
+                    </div>
+
+                    <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-muted-foreground">
+                        These filters are scoped only to job-specific fields shown in this feed.
                     </div>
                 </div>
                 {/* Action Buttons */}

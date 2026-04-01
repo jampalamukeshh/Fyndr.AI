@@ -7,6 +7,15 @@ import uuid
 from django.conf import settings
 
 
+def drop_old_conflicting_tables(apps, schema_editor):
+    vendor = schema_editor.connection.vendor
+    cascade = " CASCADE" if vendor == "postgresql" else ""
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute(f"DROP TABLE IF EXISTS jobapplier_applicationstatushistory{cascade};")
+        cursor.execute(f"DROP TABLE IF EXISTS jobapplier_application{cascade};")
+        cursor.execute(f"DROP TABLE IF EXISTS jobapplier_userprofile{cascade};")
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -16,6 +25,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Drop old conflicting tables first (safe on both SQLite and Postgres)
+        migrations.RunPython(drop_old_conflicting_tables, migrations.RunPython.noop),
         # Create new models only - don't try to remove old ones that may not exist
         migrations.CreateModel(
             name='JobApplication',

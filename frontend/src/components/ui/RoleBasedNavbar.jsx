@@ -204,36 +204,23 @@ const RoleBasedNavbar = ({ toggleNavbar }) => {
                 </Link>
               ))}
 
-              {/* Resources dropdown (role-based) */}
-              {navigation.resources && navigation.resources.length > 0 && (
-                <div className="relative group">
-                  <button className="px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-accent hover:bg-primary/5 dark:hover:bg-gray-800">
-                    <Icon name="BookOpen" size={16} />
-                    <span>Resources</span>
-                    <Icon name="ChevronDown" size={14} />
-                  </button>
-
-                  <div className="absolute left-0 mt-2 w-80 rounded-md shadow-lg bg-white dark:bg-gray-900 ring-1 ring-black ring-opacity-5 focus:outline-none origin-top-right opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                    <div className="py-2 p-3 grid gap-2">
-                      {navigation.resources.map((item) => (
-                        <Link
-                          key={item.path}
-                          to={item.path}
-                          className="flex items-start p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-                        >
-                          <span className="flex items-center justify-center h-8 w-8 rounded-md bg-primary/10 dark:bg-accent/10 text-primary dark:text-accent mr-3">
-                            <Icon name={item.icon} size={16} />
-                          </span>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.label}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Resources – flat inline links, no dropdown */}
+              {navigation.resources && navigation.resources.length > 0 && navigation.resources.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1",
+                    location.pathname === item.path
+                      ? "text-primary bg-primary/10 dark:text-accent dark:bg-gray-800"
+                      : "text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-accent hover:bg-primary/5 dark:hover:bg-gray-800"
+                  )}
+                  title={item.description}
+                >
+                  <Icon name={item.icon} size={16} />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
             </div>
           )}
 

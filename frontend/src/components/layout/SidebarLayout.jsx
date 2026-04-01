@@ -28,6 +28,7 @@ const SidebarLayout = ({
   sidebarWidth = 280,
 }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const hasSidebar = Boolean(sidebar);
 
   const handleToggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -42,39 +43,40 @@ const SidebarLayout = ({
       )}
     >
       {/* Sidebar */}
-      <div
-        className={cn(
-          "transition-all duration-300 ease-in-out border-border shrink-0",
-          // Keep a stable class for collapsed; expanded width handled via inline style
-          collapsed && "w-16",
-          sidebarClassName
-        )}
-        style={{ width: collapsed ? 64 : sidebarWidth }}
-      >
-        {collapsible && (
-          <div className="flex justify-end p-2">
-            <button
-              onClick={handleToggleCollapse}
-              className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-            >
-              <Icon
-                name={collapsed
-                  ? (sidebarPosition === 'left' ? "ChevronRight" : "ChevronLeft")
-                  : (sidebarPosition === 'left' ? "ChevronLeft" : "ChevronRight")
-                }
-                size={16}
-              />
-            </button>
-          </div>
-        )}
+      {hasSidebar && (
+        <div
+          className={cn(
+            "transition-all duration-300 ease-in-out border-border shrink-0",
+            collapsed && "w-16",
+            sidebarClassName
+          )}
+          style={{ width: collapsed ? 64 : sidebarWidth }}
+        >
+          {collapsible && (
+            <div className="flex justify-end p-2">
+              <button
+                onClick={handleToggleCollapse}
+                className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+              >
+                <Icon
+                  name={collapsed
+                    ? (sidebarPosition === 'left' ? "ChevronRight" : "ChevronLeft")
+                    : (sidebarPosition === 'left' ? "ChevronLeft" : "ChevronRight")
+                  }
+                  size={16}
+                />
+              </button>
+            </div>
+          )}
 
-        <div className={cn(
-          "h-full",
-          collapsed && "overflow-hidden"
-        )}>
-          {sidebar}
+          <div className={cn(
+            "h-full",
+            collapsed && "overflow-hidden"
+          )}>
+            {sidebar}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content */}
       <div className={cn(

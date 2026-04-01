@@ -84,47 +84,41 @@ class AIChatView(APIView):
 
             system_prompt = "\n\n".join(system_parts)
 
-            # Call Gemini
-            api_key = getattr(settings, "GEMINI_API_KEY", None) or os.getenv("GEMINI_API_KEY")
+            # Call Groq
+            api_key = getattr(settings, "GROQ_API_KEY", None) or os.getenv("GROQ_API_KEY")
             if not api_key:
                 # Provide a graceful fallback reply
                 reply = (
-                    "AI is not configured on the server yet. Please set GEMINI_API_KEY. "
+                    "AI is not configured on the server yet. Please set GROQ_API_KEY. "
                     "Meanwhile, tell me more about your resume, target roles, or interview prep."
                 )
-                return Response({"reply": reply, "model": "gemini-disabled"}, status=200)
+                return Response({"reply": reply, "model": "groq-disabled"}, status=200)
 
             try:
-                import google.generativeai as genai
-                genai.configure(api_key=api_key)
-                model_name = getattr(settings, "GEMINI_MODEL", None) or os.getenv("GEMINI_MODEL") or "gemini-1.5-flash-8b"
-                generation_config = {
-                    "max_output_tokens": 350,
-                    "temperature": 0.6,
-                    "top_p": 0.9,
-                }
-                model = genai.GenerativeModel(model_name, generation_config=generation_config)
+                from groq import Groq
+                groq_client = Groq(api_key=api_key)
+                model_name = getattr(settings, "GROQ_MODEL", None) or os.getenv("GROQ_MODEL") or "llama-3.1-8b-instant"
 
-                # Compose parts respecting history
-                contents = []
-                # System instruction
-                contents.append({"role": "user", "parts": [{"text": system_prompt}]})
-                # Prior messages
+                # Compose messages respecting history
+                messages = [{"role": "system", "content": system_prompt}]
                 for item in history[-6:]:  # last 6 for latency
                     role = item.get('role', 'user')
+                    # Normalize role: Groq only accepts 'user' or 'assistant'
+                    if role not in ('user', 'assistant'):
+                        role = 'assistant' if role in ('model', 'bot', 'ai', 'system') else 'user'
                     content = (item.get('content') or '').strip()
                     if not content:
                         continue
-                    # Truncate each message to reduce token count
-                    contents.append({"role": role, "parts": [{"text": content[:800]}]})
-                # Current user message
-                contents.append({"role": "user", "parts": [{"text": user_message[:1200]}]})
+                    messages.append({"role": role, "content": content[:800]})
+                messages.append({"role": "user", "content": user_message[:1200]})
 
-                response = model.generate_content(contents)
-                text = getattr(response, 'text', None)
-                if not text and hasattr(response, 'candidates') and response.candidates:
-                    # older SDKs may return candidates
-                    text = response.candidates[0].content.parts[0].text
+                response = groq_client.chat.completions.create(
+                    model=model_name,
+                    messages=messages,
+                    max_tokens=350,
+                    temperature=0.6,
+                )
+                text = response.choices[0].message.content if response.choices else ""
 
                 reply = (text or "Sorry, I couldn't generate a response.").strip()
 
@@ -149,7 +143,7 @@ class AIChatView(APIView):
 
                 return Response({"reply": reply, "model": model_name, "conversation_id": conv_id}, status=200)
             except Exception as e:
-                logger.exception("Gemini chat failed")
+                logger.exception("Groq chat failed")
                 return Response({"detail": f"AI error: {str(e)}"}, status=500)
         except Exception as e:
             return Response({"detail": str(e)}, status=400)

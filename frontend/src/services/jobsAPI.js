@@ -429,6 +429,34 @@ class JobsAPI {
       txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     );
   }
+
+  async fetchMatchedJobs(params = {}) {
+    /**
+     * Fetch jobs ranked by match score against the authenticated user's profile.
+     * Falls back to regular job listing if not authenticated.
+     */
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page);
+    if (params.pageSize) queryParams.append('page_size', params.pageSize);
+    if (params.country) queryParams.append('country', params.country);
+
+    const url = `${this.buildApiUrl('/jobs/matched_jobs/')}?${queryParams.toString()}`;
+
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await fetch(url, { method: 'GET', headers });
+
+      if (response.status === 401) {
+        // Not authenticated — fall back to regular jobs
+        return this.fetchJobs({ ...params, ordering: '-date_posted' });
+      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.warn('fetchMatchedJobs failed, falling back to regular jobs:', error);
+      return this.fetchJobs({ ...params, ordering: '-date_posted' });
+    }
+  }
 }
 
 export const jobsAPI = new JobsAPI();
