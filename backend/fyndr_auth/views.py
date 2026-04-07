@@ -19,6 +19,23 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def _strip_binary_payload_fields(data):
+    """Remove large binary/blob fields from serialized profile payloads.
+
+    This keeps `/api/auth/profile/` responses small and prevents frontend
+    localStorage quota issues during sign-in.
+    """
+    if not isinstance(data, dict):
+        return data
+
+    # Remove any serialized BinaryField-style keys (e.g., resume_data, logo_data)
+    keys_to_remove = [k for k in data.keys() if k.endswith('_data')]
+    for key in keys_to_remove:
+        data.pop(key, None)
+
+    return data
+
 class AIChatView(APIView):
     """
     Simple AI chat endpoint powered by Google Gemini.
@@ -241,6 +258,7 @@ class ProfileView(APIView):
             try:
                 profile_obj = JobSeekerProfile.objects.get(user=user)
                 profile = JobSeekerProfileSerializer(profile_obj).data
+                profile = _strip_binary_payload_fields(profile)
                 profile_complete = profile_obj.is_complete
                 # Update user data with profile info
                 if profile_obj.first_name:
@@ -259,6 +277,7 @@ class ProfileView(APIView):
             try:
                 profile_obj = RecruiterProfile.objects.get(user=user)
                 profile = RecruiterProfileSerializer(profile_obj).data
+                profile = _strip_binary_payload_fields(profile)
                 profile_complete = profile_obj.is_complete
                 # Update user data with profile info
                 if profile_obj.first_name:
@@ -304,6 +323,7 @@ class ProfileView(APIView):
             try:
                 profile_obj = CompanyProfile.objects.get(user=user)
                 profile = CompanyProfileSerializer(profile_obj).data
+                profile = _strip_binary_payload_fields(profile)
                 profile_complete = profile_obj.is_complete
                 user_data['name'] = profile_obj.company_name or f"{user_data['first_name']} {user_data['last_name']}"
             except CompanyProfile.DoesNotExist:

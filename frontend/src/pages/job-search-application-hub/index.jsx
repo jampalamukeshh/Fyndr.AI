@@ -61,8 +61,8 @@ const JobSearchApplicationHub = () => {
 
   const { applyDynamically } = useRealTimeApplications();
 
-  // Define static filter objects to prevent infinite re-renders
-  const indiaFilters = useMemo(() => ({ country: 'india' }), []);
+  // Default to an unscoped feed; user-selected filters narrow results.
+  const defaultFilters = useMemo(() => ({}), []);
 
   // Use real data hooks with static filter reference
   const {
@@ -75,10 +75,10 @@ const JobSearchApplicationHub = () => {
     loadMore,
     updateFilters,
     refresh
-  } = useJobs(indiaFilters); // Start with India jobs
+  } = useJobs(defaultFilters);
 
-  const { stats } = useJobStats(indiaFilters);
-  const { filterOptions } = useFilterOptions(indiaFilters);
+  const { stats } = useJobStats(defaultFilters);
+  const { filterOptions } = useFilterOptions(defaultFilters);
 
   // On mount, quickly verify backend DB health to surface environment issues early
   useEffect(() => {
@@ -403,9 +403,9 @@ const JobSearchApplicationHub = () => {
       fullWidth
       noPadding
     >
-      <SidebarLayout className="!border-l-0">
+      <SidebarLayout className="!border-l-0" contentClassName="overflow-x-hidden">
         {/* Main Content */}
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-6 bg-background min-h-screen">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6 bg-background min-h-screen overflow-x-hidden">
           <div className="grid grid-cols-1 gap-6">
             {/* Search Section */}
             <div className="mb-6">
@@ -430,7 +430,7 @@ const JobSearchApplicationHub = () => {
 
             {/* View Toggle & Controls */}
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
+              <div className="flex flex-wrap items-center gap-1 bg-muted rounded-lg p-1">
                 <button
                   onClick={() => setCurrentView('search')}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 text-sm font-medium ${currentView === 'search' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
@@ -453,7 +453,7 @@ const JobSearchApplicationHub = () => {
               </div>
 
               {currentView === 'search' && (
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -484,10 +484,10 @@ const JobSearchApplicationHub = () => {
             {currentView === 'search' ? (
               <div className="bg-card rounded-xl shadow p-6">
                 {/* Results Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                  <div className="flex items-center space-x-2 min-w-0">
                     <h2 className="text-xl font-semibold text-foreground">
-                      {totalCount} Job{totalCount !== 1 ? 's' : ''} Found in India
+                      {totalCount} Job{totalCount !== 1 ? 's' : ''} Found
                     </h2>
                     {searchQuery && (
                       <span className="text-muted-foreground">

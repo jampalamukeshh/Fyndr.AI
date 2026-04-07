@@ -182,6 +182,25 @@ class JobPostingViewSet(viewsets.ReadOnlyModelViewSet):
         profile_skill_names, _ = normalize_skills_field(profile_skills_raw)
         profile_skills_lower = {s.lower() for s in profile_skill_names if s}
 
+        # Primary matching signal: onboarding-derived suited roles
+        suited_roles_detailed = profile.suited_job_roles_detailed or []
+        normalized_suited_roles = []
+        for item in suited_roles_detailed:
+            if not isinstance(item, dict):
+                continue
+            role_name = (item.get('role') or '').strip()
+            if not role_name:
+                continue
+            try:
+                match_percent = float(item.get('match_percent'))
+            except (TypeError, ValueError):
+                match_percent = 0.0
+            normalized_suited_roles.append({
+                'role': role_name,
+                'role_lower': role_name.lower(),
+                'match_percent': max(0.0, min(100.0, match_percent)),
+            })
+
         preferred_roles = profile.preferred_roles or []
         job_title = (profile.job_title or '').lower()
         location = (profile.location or '').lower()
@@ -192,37 +211,80 @@ class JobPostingViewSet(viewsets.ReadOnlyModelViewSet):
         # Annotate each job with a Python-computed match score then sort
         jobs_with_scores = []
         for job in queryset[:500]:  # cap for performance
-            score = 0
-
-            # Title/role match (up to 40 pts)
             title_lower = (job.title or '').lower()
             desc_lower = (job.description or '').lower()
-            if job_title and job_title in title_lower:
-                score += 40
-            elif any(role.lower() in title_lower for role in preferred_roles):
-                score += 35
-            elif any(word in title_lower for word in job_title.split() if len(word) > 2):
-                score += 20
-
-            # Skills match (up to 40 pts)
             job_text = f"{job.title} {job.description or ''} {job.requirements or ''}".lower()
-            matched = sum(1 for sk in profile_skills_lower if sk in job_text)
-            if profile_skills_lower:
-                skill_ratio = matched / len(profile_skills_lower)
-                score += int(skill_ratio * 40)
 
-            # Location match (up to 10 pts)
+            # -----------------------------------------------------------------
+            # Role-first scoring model
+            # - suited_job_roles_detailed drives up to 90 points (base score)
+            # - all other signals together can add up to 10 points max
+            # -----------------------------------------------------------------
+            role_base_score = 0.0
+
+            # 1) Use suited roles as primary signal
+            for role_item in normalized_suited_roles:
+                role_lower = role_item['role_lower']
+                role_tokens = [token for token in role_lower.split() if len(token) > 2]
+
+                candidate = 0.0
+                if role_lower in title_lower:
+                    candidate = role_item['match_percent']
+                elif role_lower in desc_lower:
+                    candidate = role_item['match_percent'] * 0.9
+                elif role_tokens:
+                    token_hits = sum(1 for token in role_tokens if token in title_lower)
+                    token_ratio = token_hits / len(role_tokens)
+                    if token_ratio >= 0.6:
+                        candidate = role_item['match_percent'] * 0.8
+                    elif token_ratio >= 0.4:
+                        candidate = role_item['match_percent'] * 0.65
+
+                if candidate > role_base_score:
+                    role_base_score = candidate
+
+            # 2) Backward-compatible fallback when suited roles are missing
+            if role_base_score == 0.0:
+                fallback_role_score = 0.0
+                if job_title and job_title in title_lower:
+                    fallback_role_score = 75.0
+                elif any(role.lower() in title_lower for role in preferred_roles):
+                    fallback_role_score = 70.0
+                elif any(word in title_lower for word in job_title.split() if len(word) > 2):
+                    fallback_role_score = 55.0
+                role_base_score = fallback_role_score
+
+            role_component = min(90.0, role_base_score * 0.9)
+
+            # Other signals contribute a maximum of 10 points total.
+            other_component = 0.0
+
+            # Skills bonus (up to 7)
+            if profile_skills_lower:
+                matched = sum(1 for sk in profile_skills_lower if sk in job_text)
+                skill_ratio = matched / len(profile_skills_lower)
+                other_component += min(7.0, skill_ratio * 7.0)
+
+            # Location bonus (up to 2)
             job_loc = (job.location or '').lower()
             if location and location in job_loc:
-                score += 10
+                other_component += 2.0
             elif location and any(w in job_loc for w in location.split() if len(w) > 2):
-                score += 5
+                other_component += 1.0
 
-            # Experience match (up to 10 pts) — basic check
-            score += 10  # baseline; could be refined
+            # Experience signal (up to 1) - weak boost only
+            if years_exp and years_exp > 0:
+                other_component += 1.0
 
-            # Clamp between 30 and 99
-            score = max(30, min(99, score))
+            other_component = min(10.0, other_component)
+            score = role_component + other_component
+
+            # Legacy fallback role/title scoring removed from primary path
+            # to keep suited roles as the principal signal.
+
+            # Clamp between 0 and 100
+            score = max(0.0, min(100.0, score))
+            score = int(round(score))
             jobs_with_scores.append((score, job))
 
         # Sort by score descending

@@ -73,10 +73,9 @@ const FilterChips = ({ activeFilters, onFilterChange, onClearAll }) => {
           )}
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex flex-wrap gap-2 pb-2">
           {filterOptions.map((filter) => (
-            <div key={filter.key} className="flex-shrink-0">
-              <div className="flex items-center space-x-1">
+            <div key={filter.key} className="flex items-center gap-1 flex-wrap">
                 {filter.options.map((option) => {
                   const isActive = activeFilters[filter.key]?.includes(option);
 
@@ -99,7 +98,6 @@ const FilterChips = ({ activeFilters, onFilterChange, onClearAll }) => {
                     </motion.button>
                   );
                 })}
-              </div>
             </div>
           ))}
         </div>

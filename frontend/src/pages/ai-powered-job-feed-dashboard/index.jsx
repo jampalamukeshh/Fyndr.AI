@@ -134,8 +134,7 @@ const AIJobFeedDashboard = () => {
       // Use profile-matched jobs endpoint (falls back to regular if unauthenticated)
       const response = await jobsAPI.fetchMatchedJobs({
         page: 1,
-        pageSize: 20,
-        country: 'india'
+        pageSize: 20
       });
 
       const results = response.results || [];
@@ -208,7 +207,7 @@ const AIJobFeedDashboard = () => {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      const response = await jobsAPI.fetchMatchedJobs({ page: 1, pageSize: 20, country: 'india' });
+      const response = await jobsAPI.fetchMatchedJobs({ page: 1, pageSize: 20 });
       const results = response.results || [];
       setJobs(results.map(transformJob));
       setHasMore(response.next != null);
@@ -462,7 +461,7 @@ const AIJobFeedDashboard = () => {
         placeholder="Search jobs, companies, skills..."
       />
 
-      <main className="container mx-auto px-4 lg:px-6 py-6">
+      <main className="container mx-auto px-4 lg:px-6 py-6 overflow-x-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Filter Sidebar */}
           <JobFeedFilterSidebar
@@ -490,7 +489,7 @@ const AIJobFeedDashboard = () => {
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-3">
+                <div className="flex flex-wrap items-center gap-2">
                   <SortDropdown currentSort={currentSort} onSortChange={handleSortChange} />
 
                   {/* Refresh Button */}

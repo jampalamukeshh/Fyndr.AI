@@ -1,21 +1,20 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
     "paths": {
       "components/*": [
-        "./components/*"
+        "./src/components/*"
       ],
       "pages/*": [
-        "./pages/*"
+        "./src/pages/*"
       ],
       "styles/*": [
-        "./styles/*"
+        "./src/styles/*"
       ],
       "utils/*": [
-        "./utils/*"
+        "./src/utils/*"
       ],
       "constants/*": [
-        "./constants/*"
+        "./src/constants/*"
       ]
     }
   }

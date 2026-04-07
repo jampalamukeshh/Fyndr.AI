@@ -1,4 +1,5 @@
 import os
+import hashlib
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -201,10 +202,34 @@ REST_FRAMEWORK = {
 
 # JWT Settings
 from datetime import timedelta
+
+
+def _get_jwt_signing_key() -> str:
+    """Return a JWT signing key that satisfies HS256 minimum key length guidance.
+
+    Priority:
+    1. JWT_SIGNING_KEY env var
+    2. SECRET_KEY
+
+    If the selected key is shorter than 32 bytes, derive a deterministic
+    64-byte hex key using SHA-256 to avoid weak-key warnings while keeping
+    behavior stable across restarts.
+    """
+    raw_key = (os.getenv('JWT_SIGNING_KEY', '') or SECRET_KEY or '').strip()
+    if len(raw_key.encode('utf-8')) >= 32:
+        return raw_key
+
+    # Deterministic fallback derived from existing key material.
+    return hashlib.sha256(raw_key.encode('utf-8')).hexdigest()
+
+
+JWT_SIGNING_KEY = _get_jwt_signing_key()
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Extended for development
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
+    'SIGNING_KEY': JWT_SIGNING_KEY,
 }
 
 # ATS API Configuration

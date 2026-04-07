@@ -24,7 +24,6 @@ const JobSearchApplicationHub = () => {
       setError(null);
 
       const response = await jobsAPI.fetchJobs({
-        country: 'india',
         page: append ? currentPage + 1 : 1,
         pageSize: 20
       });
@@ -101,27 +100,27 @@ const JobSearchApplicationHub = () => {
 
   return (
     <MainLayout
-      title="India Jobs - Fyndr.AI"
-      description="Browse available jobs in India"
+      title="Jobs - Fyndr.AI"
+      description="Browse available jobs"
       noPadding
     >
-      <SidebarLayout className="!border-l-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-background min-h-screen">
+      <SidebarLayout className="!border-l-0" contentClassName="overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-background min-h-screen overflow-x-hidden">
           <div className="space-y-6">
             {/* Header */}
             <div className="text-center">
               <h1 className="text-4xl font-bold text-foreground mb-4">
-                Jobs in India
+                Jobs
               </h1>
               <p className="text-lg text-muted-foreground">
-                {totalCount} opportunities available across India
+                {totalCount} opportunities available
               </p>
             </div>
 
             {/* Content */}
             <div className="bg-card rounded-xl shadow p-6">
               {/* Results Header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h2 className="text-xl font-semibold text-foreground">
                   {totalCount} Jobs Found
                 </h2>

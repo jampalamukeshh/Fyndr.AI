@@ -403,8 +403,15 @@ def call_gemini_for_resume(parsed_text: str) -> Optional[Dict[str, Any]]:
 			"SCHEMA:\n" + schema_text + "\n\n"
 			"IMPORTANT: produce the exact shapes for 'education' and 'experiences' as described in the schema.\n"
 			"For 'skills' return an array of objects with keys: name (string), category (string), proficiency (string). 'category' is REQUIRED for each skill. If the resume does not list a category, infer a reasonable category (e.g., 'Programming', 'Framework', 'Tools', 'Management') rather than leaving it blank.\n"
-			"For 'suited_roles' return an array of objects with keys {role (string), match_percent (number)}. Return many candidate roles (up to 20) ordered by match_percent desc. match_percent must be a number between 33 and 100 (inclusive) — use higher percentages for roles that closely match the candidate's skills/experience.\n"
-			"After listing suited_roles, compute 'preferred_roles' as those suited roles with match_percent >= 85.0 (use up to top 5 preferred roles); include preferred_roles as a top-level array of role names.\n"
+			"For 'suited_roles' return an array of objects with keys {role (string), match_percent (number)}. Return as many VALID candidate roles as possible (target 25-50 when evidence exists), ordered by match_percent descending. match_percent must be a number between 33 and 100 (inclusive).\n"
+			"STRICT ROLE QUALITY RULES (VERY IMPORTANT):\n"
+			"1) Only include real, standard industry job titles that are commonly used in hiring markets.\n"
+			"2) Do NOT invent, exaggerate, or hallucinate futuristic/novel/marketing-style titles.\n"
+			"3) Each role must be grounded in explicit resume evidence (skills, projects, experience, tools, domain). If evidence is weak, either lower match_percent or omit the role.\n"
+			"4) Prefer canonical role names (e.g., 'Backend Developer', 'Frontend Developer', 'Full Stack Developer', 'Data Scientist', 'Machine Learning Engineer', 'DevOps Engineer', 'QA Automation Engineer', 'Cloud Engineer', 'Data Engineer', 'Product Manager').\n"
+			"5) Avoid duplicate/near-duplicate variants that mean the same role; keep the best canonical form once.\n"
+			"6) If unsure whether a role is real/correct for this candidate, do not include it.\n"
+			"After listing suited_roles, compute 'preferred_roles' as those suited roles with match_percent >= 85.0 (use up to top 10 preferred roles); include preferred_roles as a top-level array of role names.\n"
 			"CRITICAL: Always include the top-level keys 'suited_roles' and 'preferred_roles' in the JSON output. If none apply, return them as empty arrays. Do NOT omit these keys.\n\n"
 			"Return the parsed JSON now. Resume text follows: \n" + parsed_text[:15000]
 		)
@@ -634,9 +641,10 @@ def merge_into_jobseeker_profile(profile, ai: Dict[str, Any], force: bool = Fals
 		mp_num = max(33.0, min(100.0, mp_num))
 		suited_objects.append({"role": role, "match_percent": round(mp_num, 2)})
 
-	# Sort suited_objects by match_percent desc and cap candidates to 20
+	# Sort suited_objects by match_percent desc and keep a broad role set.
+	# Prompt asks for 25-50 when evidence exists; cap at 50 for storage safety.
 	if suited_objects:
-		suited_objects = sorted(suited_objects, key=lambda x: x.get('match_percent', 0), reverse=True)[:20]
+		suited_objects = sorted(suited_objects, key=lambda x: x.get('match_percent', 0), reverse=True)[:50]
 	# names list preserved in order
 	suited = [o["role"] for o in suited_objects]
 
