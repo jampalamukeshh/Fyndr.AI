@@ -417,7 +417,7 @@ const HackathonsCompetitions = () => {
           <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
-              to="/mentorship-platform"
+              to="/community-hub"
               className="flex items-center space-x-3 p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-spring group"
             >
               <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-spring">
@@ -430,7 +430,7 @@ const HackathonsCompetitions = () => {
             </Link>
 
             <Link
-              to="/resource-library"
+              to="/community-hub"
               className="flex items-center space-x-3 p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-spring group"
             >
               <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-accent/20 transition-spring">
@@ -456,7 +456,7 @@ const HackathonsCompetitions = () => {
             </Link>
 
             <Link
-              to="/virtual-career-fair"
+              to="/community-hub"
               className="flex items-center space-x-3 p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-spring group"
             >
               <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center group-hover:bg-warning/20 transition-spring">

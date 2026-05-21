@@ -16,19 +16,19 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case 'applied':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-700/50';
       case 'in review':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-300 dark:border-yellow-700/50';
       case 'interview':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-700/50';
       case 'offer':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700/50';
       case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700/50';
       case 'withdrawn':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600';
     }
   };
 
@@ -97,17 +97,17 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
   };
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow ${className}`}>
+    <div className={`bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow ${className}`}>
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+          <h3 className="text-lg font-semibold text-foreground mb-1">
             {application.jobTitle || 'Job Title'}
           </h3>
-          <p className="text-gray-600 mb-2">
+          <p className="text-muted-foreground mb-2">
             {application.company || 'Company Name'}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {application.location || 'Location'}
           </p>
         </div>
@@ -118,14 +118,14 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
             {application.status || 'Applied'}
           </span>
           {application.is_verified && (
-            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-800 border border-green-200">
+            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700/50">
               Verified{application.verified_source ? ` · ${application.verified_source}` : ''}
             </span>
           )}
           {confirmation && (
             <button
               type="button"
-              className="text-[11px] text-gray-500 hover:text-gray-700"
+              className="text-[11px] text-muted-foreground hover:text-foreground"
               title={`Confirmation: ${confirmation}`}
               onClick={() => navigator.clipboard?.writeText(confirmation)}
             >
@@ -138,16 +138,16 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
       {/* Application Details */}
       <div className="space-y-2 mb-4">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Applied:</span>
-          <span className="text-gray-900">
+          <span className="text-muted-foreground">Applied:</span>
+          <span className="text-foreground">
             {application.appliedDate ? formatDate(application.appliedDate) : 'N/A'}
           </span>
         </div>
 
         {application.lastUpdate && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Last Update:</span>
-            <span className="text-gray-900">
+            <span className="text-muted-foreground">Last Update:</span>
+            <span className="text-foreground">
               {formatDate(application.lastUpdate)}
             </span>
           </div>
@@ -155,8 +155,8 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
 
         {application.salary && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Salary:</span>
-            <span className="text-gray-900">
+            <span className="text-muted-foreground">Salary:</span>
+            <span className="text-foreground">
               ${application.salary.toLocaleString()}
             </span>
           </div>
@@ -164,14 +164,14 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
       </div>
 
       {/* Actions */}
-      <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+      <div className="flex justify-between items-center pt-4 border-t border-border">
         <div className="flex space-x-2">
           {/* Status Update Dropdown */}
           <select
             value={application.status}
             onChange={(e) => handleStatusUpdate(e.target.value)}
             disabled={isUpdating}
-            className="text-sm border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="applied">Applied</option>
             <option value="in review">In Review</option>
@@ -186,7 +186,7 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
           {/* View on ATS / Job */}
           {isAbsoluteUrl(atsUrl) && (
             <button
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="text-primary hover:text-primary/80 text-sm font-medium"
               onClick={() => window.open(atsUrl, '_blank')}
               title={atsUrl}
             >
@@ -195,7 +195,7 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
           )}
           {!isAbsoluteUrl(atsUrl) && (
             <button
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="text-primary hover:text-primary/80 text-sm font-medium"
               onClick={() => window.open(application.jobUrl || '#', '_blank')}
             >
               View Job
@@ -206,7 +206,7 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
           <button
             onClick={handleVerify}
             disabled={isVerifying}
-            className={`text-sm font-medium ${isVerifying ? 'text-gray-400 cursor-not-allowed' : 'text-green-600 hover:text-green-700'}`}
+            className={`text-sm font-medium ${isVerifying ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'text-green-600 dark:text-green-300 hover:text-green-700 dark:hover:text-green-200'}`}
             title="Check ATS for your submission and update status if found"
           >
             {isVerifying ? 'Verifying…' : 'Verify'}
@@ -216,7 +216,7 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
           <button
             onClick={handleConfirmApplied}
             disabled={confirming}
-            className={`text-sm font-medium ${confirming ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700'}`}
+            className={`text-sm font-medium ${confirming ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'text-primary hover:text-primary/80'}`}
             title="Mark as Applied if you submitted on the careers site"
           >
             {confirming ? 'Saving…' : 'I Applied'}
@@ -225,7 +225,7 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
           {/* Remove Button */}
           <button
             onClick={() => onRemove(application.id)}
-            className="text-red-600 hover:text-red-700 text-sm font-medium"
+            className="text-error hover:text-error/80 text-sm font-medium"
           >
             Remove
           </button>
@@ -234,15 +234,15 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
 
       {/* Verification helper message */}
       {verifyMessage && (
-        <div className="mt-3 text-xs text-gray-600">
+        <div className="mt-3 text-xs text-muted-foreground">
           {verifyMessage}
         </div>
       )}
 
       {/* Notes Section */}
       {application.notes && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <p className="text-sm text-gray-600">
+        <div className="mt-4 pt-4 border-t border-border">
+          <p className="text-sm text-muted-foreground">
             <span className="font-medium">Notes:</span> {application.notes}
           </p>
         </div>
@@ -250,14 +250,14 @@ const ApplicationCard = ({ application, onStatusUpdate, onRemove, className = ""
 
       {/* Artifacts Section */}
       {Array.isArray(application.automation_log) && application.automation_log.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <p className="text-sm font-medium text-gray-700 mb-2">Artifacts</p>
+        <div className="mt-4 pt-4 border-t border-border">
+          <p className="text-sm font-medium text-foreground mb-2">Artifacts</p>
           <ul className="space-y-1">
             {application.automation_log.map((item, idx) => (
-              <li key={idx} className="text-xs text-gray-600 flex items-center gap-2">
-                <span className="inline-block px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 border">{item.type || 'file'}</span>
+              <li key={idx} className="text-xs text-muted-foreground flex items-center gap-2">
+                <span className="inline-block px-1.5 py-0.5 rounded bg-muted text-foreground border border-border">{item.type || 'file'}</span>
                 {item.path ? (
-                  <a href={item.path} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline truncate">
+                  <a href={item.path} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
                     {item.path}
                   </a>
                 ) : (

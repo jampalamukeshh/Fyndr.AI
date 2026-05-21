@@ -39,10 +39,10 @@ export const ROUTES_C = {
 // Routes from Repository D
 export const ROUTES_D = {
   INTERVIEW_PRACTICE: '/interview-practice-video-sessions',
-  MENTORSHIP: '/mentorship-platform',
-  RESOURCE_LIBRARY: '/resource-library',
+  MENTORSHIP: '/community-hub',
+  RESOURCE_LIBRARY: '/community-hub',
   ALUMNI_NETWORK: '/alumni-network-referrals',
-  CAREER_FAIR: '/virtual-career-fair',
+  CAREER_FAIR: '/community-hub',
   HACKATHONS: '/hackathons-competitions',
 };
 
@@ -83,7 +83,7 @@ export const MAIN_NAV = [
   },
   {
     label: 'Network',
-    path: ROUTES_D.MENTORSHIP,
+    path: '/community-hub',
     icon: 'Users'
   }
 ];
@@ -104,7 +104,7 @@ export const RESOURCES_NAV = [
   },
   {
     label: 'Resource Library',
-    path: ROUTES_D.RESOURCE_LIBRARY,
+    path: '/community-hub',
     description: 'Articles, guides and templates for your job search',
     icon: 'Library'
   },
@@ -116,7 +116,7 @@ export const RESOURCES_NAV = [
   },
   {
     label: 'Virtual Career Fair',
-    path: ROUTES_D.CAREER_FAIR,
+    path: '/community-hub',
     description: 'Connect with employers in our virtual space',
     icon: 'Globe'
   }

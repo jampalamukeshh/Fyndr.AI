@@ -6,6 +6,7 @@ import FeaturesSection from './components/FeaturesSection';
 import TestimonialsCarousel from './components/TestimonialsCarousel';
 import AboutSection from './components/AboutSection';
 import FooterSection from './components/FooterSection';
+import { homepageContent } from './content/homepageContent';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -34,22 +35,22 @@ const Homepage = () => {
       {/* Main Content - Homepage has its own custom layout */}
       <div className="relative">
         {/* Hero Section */}
-        <HeroSection />
+        <HeroSection content={homepageContent.hero} />
 
         {/* Role Selection Cards */}
-        <RoleCards />
+        <RoleCards content={homepageContent.roles} />
 
         {/* Features Section */}
-        <FeaturesSection />
+        <FeaturesSection content={homepageContent.featuredCapabilities} />
 
         {/* Testimonials Carousel */}
-        <TestimonialsCarousel />
+        <TestimonialsCarousel content={homepageContent.testimonials} />
 
         {/* About Section */}
-        <AboutSection />
+        <AboutSection content={homepageContent.about} />
 
         {/* Footer */}
-        <FooterSection />
+        <FooterSection content={homepageContent.footer} />
       </div>
     </MainLayout>
   );

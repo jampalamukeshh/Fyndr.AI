@@ -27,13 +27,13 @@ const Header = ({ showNavbarInstead = true }) => {
   const navigationItems = [
     {
       label: 'Resources',
-      path: '/resource-library',
+      path: '/community-hub',
       icon: 'BookOpen',
       description: 'Learning materials and practice tools'
     },
     {
       label: 'Mentorship',
-      path: '/mentorship-platform',
+      path: '/community-hub',
       icon: 'Users',
       description: 'Professional guidance and coaching'
     },
@@ -45,7 +45,7 @@ const Header = ({ showNavbarInstead = true }) => {
     },
     {
       label: 'Events',
-      path: '/virtual-career-fair',
+      path: '/community-hub',
       icon: 'Calendar',
       description: 'Live career fairs and networking'
     },

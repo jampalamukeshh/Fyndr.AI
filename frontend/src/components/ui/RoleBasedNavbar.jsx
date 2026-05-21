@@ -169,7 +169,7 @@ const RoleBasedNavbar = ({ toggleNavbar }) => {
     <nav className={cn(
       "fixed top-0 left-0 right-0 z-[1050] transition-all duration-300",
       isScrolled
-        ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm"
+        ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm border-b border-border/60"
         : "bg-transparent dark:bg-gray-900/80"
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -382,7 +382,7 @@ const RoleBasedNavbar = ({ toggleNavbar }) => {
 
       {/* Mobile menu, show/hide based on menu state (role-based) */}
       {isMobileMenuOpen && user && navigation && (
-        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg">
+        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg border-t border-border/60 rounded-b-2xl mx-2 mb-2 overflow-hidden">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {/* Role indicator in mobile */}
             <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-800 mb-2">

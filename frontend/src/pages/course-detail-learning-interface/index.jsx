@@ -331,7 +331,7 @@ const CourseDetailLearningInterface = () => {
           <div className="bg-card/30 p-4">
             <div className="flex items-center justify-between max-w-screen-2xl mx-auto">
               <div className="flex items-center space-x-4">
-                <Link to="/resource-library" className="flex items-center text-sm font-medium">
+                <Link to="/community-hub" className="flex items-center text-sm font-medium">
                   <Icon name="ChevronLeft" size={16} className="mr-1" />
                   Back to Resources
                 </Link>

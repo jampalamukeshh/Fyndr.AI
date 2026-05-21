@@ -4,59 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 
-const RoleCards = () => {
+const RoleCards = ({ content }) => {
   const navigate = useNavigate();
-
-  const roles = [
-    {
-      id: 'job-seeker',
-      title: 'Job Seeker',
-      subtitle: 'Find Your Dream Career',
-      description: 'Discover opportunities with AI-powered job matching, skill assessments, and personalized career guidance.',
-      icon: 'User',
-      color: 'from-primary to-primary/80',
-      features: [
-        'AI Resume Screening',
-        'Skill Development Tracking',
-        'Interview Preparation',
-        'Career Path Guidance'
-      ],
-      cta: 'Start Job Search',
-      stats: '50K+ Jobs Available'
-    },
-    {
-      id: 'recruiter',
-      title: 'Recruiter',
-      subtitle: 'Streamline Your Hiring',
-      description: 'Leverage AI-powered candidate screening, bias-free interviews, and intelligent matching algorithms.',
-      icon: 'Search',
-      color: 'from-accent to-accent/80',
-      features: [
-        'Automated Screening',
-        'Bias-Free Interviews',
-        'Candidate Analytics',
-        'Team Collaboration'
-      ],
-      cta: 'Start Recruiting',
-      stats: '10K+ Recruiters Active'
-    },
-    {
-      id: 'employer',
-      title: 'Employer',
-      subtitle: 'Build Your Dream Team',
-      description: 'Manage your entire hiring funnel with comprehensive analytics, team tools, and data-driven insights.',
-      icon: 'Building',
-      color: 'from-success to-success/80',
-      features: [
-        'Hiring Funnel Management',
-        'Team Collaboration Tools',
-        'Analytics Dashboard',
-        'Compliance Tracking'
-      ],
-      cta: 'Hire Top Talent',
-      stats: '5K+ Companies Hiring'
-    }
-  ];
+  const roles = content?.cards || [];
 
   const handleRoleSelect = (roleId) => {
     // Store selected role for registration flow
@@ -98,10 +48,10 @@ const RoleCards = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-heading-bold text-foreground mb-4 tracking-wide">
-            Choose Your Path
+            {content?.heading || 'Choose Your Path'}
           </h2>
           <p className="text-lg text-muted-foreground font-body leading-relaxed max-w-2xl mx-auto">
-            Whether you're seeking opportunities, finding talent, or building teams, Fyndr.AI has the perfect solution for your needs.
+            {content?.subheading}
           </p>
         </motion.div>
 
@@ -121,7 +71,7 @@ const RoleCards = () => {
                 scale: 1.02,
                 transition: { duration: 0.2 }
               }}
-              className={`glassmorphic rounded-[1.25rem] p-8 elevation-2 hover:elevation-3 spring-transition group stagger-${index + 1}`}
+              className={`glassmorphic rounded-[1.25rem] border border-border/80 p-8 elevation-2 hover:elevation-3 spring-transition group stagger-${index + 1}`}
             >
               {/* Card Header */}
               <div className="flex items-center justify-between mb-6">
@@ -196,12 +146,12 @@ const RoleCards = () => {
           <Button
             variant="outline"
             size="default"
-            onClick={() => navigate('/about-contact-page')}
+            onClick={() => navigate(content?.guidanceCta?.path || '/about-contact-page')}
             iconName="HelpCircle"
             iconPosition="left"
             iconSize={18}
           >
-            Get Personalized Guidance
+            {content?.guidanceCta?.label || 'Get Personalized Guidance'}
           </Button>
         </motion.div>
       </div>

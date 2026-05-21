@@ -2,15 +2,15 @@ import React from "react";
 
 const ApplicationStats = ({ applications }) => {
   const totalApplications = applications.length;
-  const activeApplications = applications.filter(app => 
+  const activeApplications = applications.filter(app =>
     ['applied', 'reviewing', 'interview'].includes(app.status)
   ).length;
   const interviewCount = applications.filter(app => app.status === 'interview').length;
   const offerCount = applications.filter(app => app.status === 'offer').length;
   const rejectedCount = applications.filter(app => app.status === 'rejected').length;
-  
+
   // Calculate response rate (applications that moved beyond 'applied' status)
-  const respondedApplications = applications.filter(app => 
+  const respondedApplications = applications.filter(app =>
     app.status !== 'applied' && app.status !== 'withdrawn'
   ).length;
   const responseRate = totalApplications > 0 ? Math.round((respondedApplications / totalApplications) * 100) : 0;
@@ -18,7 +18,7 @@ const ApplicationStats = ({ applications }) => {
   // Calculate this week's applications
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  const thisWeekApplications = applications.filter(app => 
+  const thisWeekApplications = applications.filter(app =>
     new Date(app.appliedDate) >= oneWeekAgo
   ).length;
 
@@ -27,54 +27,54 @@ const ApplicationStats = ({ applications }) => {
       title: "Total Applications",
       value: totalApplications,
       icon: "📋",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
+      color: "text-blue-600 dark:text-blue-300",
+      bgColor: "bg-blue-50 dark:bg-blue-900/30",
+      borderColor: "border-blue-200 dark:border-blue-800/60",
       description: "All time applications"
     },
     {
       title: "Active Applications",
       value: activeApplications,
       icon: "⏳",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200",
+      color: "text-orange-600 dark:text-orange-300",
+      bgColor: "bg-orange-50 dark:bg-orange-900/30",
+      borderColor: "border-orange-200 dark:border-orange-800/60",
       description: "Currently in progress"
     },
     {
       title: "Interviews",
       value: interviewCount,
       icon: "🎯",
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200",
+      color: "text-green-600 dark:text-green-300",
+      bgColor: "bg-green-50 dark:bg-green-900/30",
+      borderColor: "border-green-200 dark:border-green-800/60",
       description: "Interview opportunities"
     },
     {
       title: "Response Rate",
       value: `${responseRate}%`,
       icon: "📈",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      borderColor: "border-purple-200",
+      color: "text-purple-600 dark:text-purple-300",
+      bgColor: "bg-purple-50 dark:bg-purple-900/30",
+      borderColor: "border-purple-200 dark:border-purple-800/60",
       description: "Companies that responded"
     },
     {
       title: "This Week",
       value: thisWeekApplications,
       icon: "📅",
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
-      borderColor: "border-indigo-200",
+      color: "text-indigo-600 dark:text-indigo-300",
+      bgColor: "bg-indigo-50 dark:bg-indigo-900/30",
+      borderColor: "border-indigo-200 dark:border-indigo-800/60",
       description: "Applications this week"
     },
     {
       title: "Offers",
       value: offerCount,
       icon: "🎉",
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
-      borderColor: "border-emerald-200",
+      color: "text-emerald-600 dark:text-emerald-300",
+      bgColor: "bg-emerald-50 dark:bg-emerald-900/30",
+      borderColor: "border-emerald-200 dark:border-emerald-800/60",
       description: "Job offers received"
     }
   ];
@@ -126,7 +126,7 @@ const ApplicationStats = ({ applications }) => {
               Offer Rate: {totalApplications > 0 ? Math.round((offerCount / totalApplications) * 100) : 0}%
             </span>
           </div>
-          
+
           <div className="text-sm text-muted-foreground">
             Last updated: {new Date().toLocaleDateString()}
           </div>

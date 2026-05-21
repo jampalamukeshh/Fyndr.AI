@@ -37,11 +37,9 @@ import AdminDashboardSystemManagement from "pages/admin-dashboard-system-managem
 
 // Import pages from Project D
 import InterviewPracticeVideoSessions from "pages/interview-practice-video-sessions";
-import MentorshipPlatform from "pages/mentorship-platform";
-import ResourceLibrary from "pages/resource-library";
 import AlumniNetworkReferrals from "pages/alumni-network-referrals";
-import VirtualCareerFair from "pages/virtual-career-fair";
 import HackathonsCompetitions from "pages/hackathons-competitions";
+import CommunityHub from "pages/community-hub";
 
 // Import Real-Time Dashboard
 import RealTimeDashboard from "components/dashboard/RealTimeDashboard";
@@ -49,6 +47,7 @@ import RealTimeDashboard from "components/dashboard/RealTimeDashboard";
 // Import Not Found page
 import NotFound from "pages/NotFound";
 import GoogleCallback from "pages/oauth/GoogleCallback";
+import PlatformCommandCenter from "pages/platform-command-center";
 
 const Routes = () => {
   return (
@@ -58,9 +57,10 @@ const Routes = () => {
         {/* Main Homepage Route (public) */}
         <Route path="/" element={<Homepage />} />
         <Route path="/homepage" element={<Homepage />} />
+        <Route path="/workspace" element={<ProtectedRoute requireOnboarding={true}><PlatformCommandCenter /></ProtectedRoute>} />
         <Route path="/authentication-login-register" element={<AuthenticationLoginRegister />} />
         <Route path="/oauth/google/callback" element={<ProtectedRoute><GoogleCallback /></ProtectedRoute>} />
-        <Route path="/about-contact-page" element={<ProtectedRoute requireOnboarding={true}><AboutContactPage /></ProtectedRoute>} />
+        <Route path="/about-contact-page" element={<AboutContactPage />} />
         <Route path="/notifications-center" element={<ProtectedRoute requireOnboarding={true}><NotificationsCenter /></ProtectedRoute>} />
         <Route path="/profile-management" element={<ProtectedRoute requireOnboarding={true}><ProfileManagement /></ProtectedRoute>} />
         <Route path="/company-profile-management" element={<ProtectedRoute requireOnboarding={true}><CompanyProfileManagement /></ProtectedRoute>} />
@@ -101,10 +101,11 @@ const Routes = () => {
 
         {/* Routes from Project D */}
         <Route path="/interview-practice-video-sessions" element={<ProtectedRoute requireOnboarding={true}><InterviewPracticeVideoSessions /></ProtectedRoute>} />
-        <Route path="/mentorship-platform" element={<ProtectedRoute requireOnboarding={true}><MentorshipPlatform /></ProtectedRoute>} />
-        <Route path="/resource-library" element={<ProtectedRoute requireOnboarding={true}><ResourceLibrary /></ProtectedRoute>} />
+        <Route path="/community-hub" element={<ProtectedRoute requireOnboarding={true}><CommunityHub /></ProtectedRoute>} />
+        <Route path="/mentorship-platform" element={<ProtectedRoute requireOnboarding={true}><CommunityHub /></ProtectedRoute>} />
+        <Route path="/resource-library" element={<ProtectedRoute requireOnboarding={true}><CommunityHub /></ProtectedRoute>} />
         <Route path="/alumni-network-referrals" element={<ProtectedRoute requireOnboarding={true}><AlumniNetworkReferrals /></ProtectedRoute>} />
-        <Route path="/virtual-career-fair" element={<ProtectedRoute requireOnboarding={true}><VirtualCareerFair /></ProtectedRoute>} />
+        <Route path="/virtual-career-fair" element={<ProtectedRoute requireOnboarding={true}><CommunityHub /></ProtectedRoute>} />
         <Route path="/hackathons-competitions" element={<ProtectedRoute requireOnboarding={true}><HackathonsCompetitions /></ProtectedRoute>} />
 
         {/* Real-Time Dashboard */}

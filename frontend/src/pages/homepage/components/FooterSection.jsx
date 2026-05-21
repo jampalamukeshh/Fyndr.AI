@@ -4,43 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 
-const FooterSection = () => {
+const FooterSection = ({ content }) => {
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    product: [
-      { label: 'Features', path: '/homepage' },
-      { label: 'Video Interviews', path: '/video-interview-interface' },
-      { label: 'AI Screening', path: '/homepage' },
-      { label: 'Analytics', path: '/homepage' }
-    ],
-    company: [
-      { label: 'About Us', path: '/about-contact-page' },
-      { label: 'Careers', path: '/about-contact-page' },
-      { label: 'Contact', path: '/about-contact-page' },
-      { label: 'Blog', path: '/homepage' }
-    ],
-    resources: [
-      { label: 'Help Center', path: '/about-contact-page' },
-      { label: 'Documentation', path: '/homepage' },
-      { label: 'API Reference', path: '/homepage' },
-      { label: 'Status', path: '/homepage' }
-    ],
-    legal: [
-      { label: 'Privacy Policy', path: '/homepage' },
-      { label: 'Terms of Service', path: '/homepage' },
-      { label: 'Cookie Policy', path: '/homepage' },
-      { label: 'GDPR', path: '/homepage' }
-    ]
-  };
-
-  const socialLinks = [
-    { name: 'Twitter', icon: 'Twitter', url: 'https://twitter.com/fyndrai', color: 'hover:text-blue-400' },
-    { name: 'LinkedIn', icon: 'Linkedin', url: 'https://linkedin.com/company/fyndrai', color: 'hover:text-blue-600' },
-    { name: 'GitHub', icon: 'Github', url: 'https://github.com/fyndrai', color: 'hover:text-gray-400' },
-    { name: 'YouTube', icon: 'Youtube', url: 'https://youtube.com/fyndrai', color: 'hover:text-red-500' }
-  ];
+  const footerGroups = content?.groups || [];
+  const socialLinks = content?.socialLinks || [];
 
   const handleLinkClick = (path) => {
     navigate(path);
@@ -52,12 +20,11 @@ const FooterSection = () => {
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
-    // Mock newsletter subscription
-    alert('Thank you for subscribing to our newsletter!');
+    window.alert(content?.newsletter?.successMessage || 'Thank you for subscribing to our newsletter!');
   };
 
   return (
-    <footer className="bg-gradient-to-b from-background to-card/50 border-t border-border">
+    <footer className="relative bg-gradient-to-b from-background to-card/50 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="py-16">
@@ -77,17 +44,17 @@ const FooterSection = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-heading font-heading-bold text-foreground tracking-wide">
-                      Fyndr.AI
+                      {content?.brand?.name || 'Fyndr.AI'}
                     </h3>
                     <p className="text-xs text-muted-foreground font-caption">
-                      Intelligent Hiring Platform
+                      {content?.brand?.tagline || 'Intelligent Hiring Platform'}
                     </p>
                   </div>
                 </div>
 
                 {/* Description */}
                 <p className="text-sm text-muted-foreground font-body leading-relaxed mb-6">
-                  Revolutionizing the hiring process through AI-powered solutions that eliminate bias, enhance efficiency, and create equal opportunities for everyone.
+                  {content?.brand?.description}
                 </p>
 
                 {/* Social Links */}
@@ -98,6 +65,8 @@ const FooterSection = () => {
                       onClick={() => handleSocialClick(social.url)}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
+                      type="button"
+                      aria-label={`Open ${social.name}`}
                       className={`w-10 h-10 glassmorphic rounded-[1.25rem] flex items-center justify-center text-muted-foreground ${social.color} spring-transition ripple`}
                     >
                       <Icon name={social.icon} size={18} />
@@ -110,101 +79,32 @@ const FooterSection = () => {
             {/* Links Sections */}
             <div className="lg:col-span-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {/* Product Links */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.1 }}
-                >
-                  <h4 className="text-sm font-heading font-heading-semibold text-foreground mb-4 tracking-wide">
-                    Product
-                  </h4>
-                  <ul className="space-y-3">
-                    {footerLinks.product.map((link, index) => (
-                      <li key={index}>
-                        <button
-                          onClick={() => handleLinkClick(link.path)}
-                          className="text-sm text-muted-foreground hover:text-foreground spring-transition"
-                        >
-                          {link.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-
-                {/* Company Links */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                >
-                  <h4 className="text-sm font-heading font-heading-semibold text-foreground mb-4 tracking-wide">
-                    Company
-                  </h4>
-                  <ul className="space-y-3">
-                    {footerLinks.company.map((link, index) => (
-                      <li key={index}>
-                        <button
-                          onClick={() => handleLinkClick(link.path)}
-                          className="text-sm text-muted-foreground hover:text-foreground spring-transition"
-                        >
-                          {link.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-
-                {/* Resources Links */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
-                >
-                  <h4 className="text-sm font-heading font-heading-semibold text-foreground mb-4 tracking-wide">
-                    Resources
-                  </h4>
-                  <ul className="space-y-3">
-                    {footerLinks.resources.map((link, index) => (
-                      <li key={index}>
-                        <button
-                          onClick={() => handleLinkClick(link.path)}
-                          className="text-sm text-muted-foreground hover:text-foreground spring-transition"
-                        >
-                          {link.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-
-                {/* Legal Links */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                >
-                  <h4 className="text-sm font-heading font-heading-semibold text-foreground mb-4 tracking-wide">
-                    Legal
-                  </h4>
-                  <ul className="space-y-3">
-                    {footerLinks.legal.map((link, index) => (
-                      <li key={index}>
-                        <button
-                          onClick={() => handleLinkClick(link.path)}
-                          className="text-sm text-muted-foreground hover:text-foreground spring-transition"
-                        >
-                          {link.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
+                {footerGroups.map((group, groupIndex) => (
+                  <motion.div
+                    key={group.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.1 + (groupIndex * 0.1) }}
+                  >
+                    <h4 className="text-sm font-heading font-heading-semibold text-foreground mb-4 tracking-wide">
+                      {group.title}
+                    </h4>
+                    <ul className="space-y-3">
+                      {(group.links || []).map((link) => (
+                        <li key={link.label}>
+                          <button
+                            type="button"
+                            onClick={() => handleLinkClick(link.path)}
+                            className="text-sm text-muted-foreground hover:text-foreground spring-transition"
+                          >
+                            {link.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                ))}
               </div>
             </div>
 
@@ -215,17 +115,18 @@ const FooterSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.5 }}
+                className="rounded-[1rem] border border-border/70 bg-card/40 p-4"
               >
                 <h4 className="text-sm font-heading font-heading-semibold text-foreground mb-4 tracking-wide">
-                  Stay Updated
+                  {content?.newsletter?.title || 'Stay Updated'}
                 </h4>
                 <p className="text-xs text-muted-foreground font-body leading-relaxed mb-4">
-                  Get the latest updates on AI hiring trends and platform features.
+                  {content?.newsletter?.description}
                 </p>
                 <form onSubmit={handleNewsletterSubmit} className="space-y-3">
                   <input
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={content?.newsletter?.placeholder || 'Enter your email'}
                     required
                     className="w-full px-3 py-2 bg-input border border-border rounded-[1.25rem] text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 spring-transition"
                   />
@@ -234,11 +135,11 @@ const FooterSection = () => {
                     variant="default"
                     size="sm"
                     fullWidth
-                    iconName="Send"
+                    iconName={content?.newsletter?.buttonIcon || 'Send'}
                     iconPosition="right"
                     iconSize={14}
                   >
-                    Subscribe
+                    {content?.newsletter?.buttonLabel || 'Subscribe'}
                   </Button>
                 </form>
               </motion.div>
@@ -259,7 +160,7 @@ const FooterSection = () => {
               <span>© {currentYear} Fyndr.AI. All rights reserved.</span>
               <div className="flex items-center space-x-2">
                 <Icon name="Shield" size={14} className="text-success" />
-                <span>SOC 2 Compliant</span>
+                <span>{content?.complianceText || 'SOC 2 Compliant'}</span>
               </div>
             </motion.div>
 
@@ -272,7 +173,7 @@ const FooterSection = () => {
             >
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-                <span>All systems operational</span>
+                <span>{content?.operationalStatus || 'All systems operational'}</span>
               </div>
               <span>•</span>
               <span>Made with ❤️ for better hiring</span>

@@ -3,7 +3,7 @@ import Icon from 'components/AppIcon';
 import Image from 'components/AppImage';
 import Button from 'components/ui/Button';
 
-const ReferralTracker = ({ onRequestReferral }) => {
+const ReferralTracker = ({ onRequestReferral, onMessagePerson }) => {
   const [activeTab, setActiveTab] = useState('requests');
 
   const referralRequests = [
@@ -180,7 +180,7 @@ const ReferralTracker = ({ onRequestReferral }) => {
             Update Status
           </Button>
         )}
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={() => onMessagePerson?.(request.requester)}>
           <Icon name="MessageCircle" size={16} className="mr-2" />
           Message
         </Button>
@@ -235,10 +235,16 @@ const ReferralTracker = ({ onRequestReferral }) => {
 
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>Submitted: {new Date(referral.submittedDate).toLocaleDateString()}</span>
-        <Button variant="ghost" size="sm">
-          <Icon name="ExternalLink" size={16} className="mr-2" />
-          View Details
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => onMessagePerson?.(referral.referee)}>
+            <Icon name="MessageCircle" size={16} className="mr-2" />
+            Message
+          </Button>
+          <Button variant="ghost" size="sm">
+            <Icon name="ExternalLink" size={16} className="mr-2" />
+            View Details
+          </Button>
+        </div>
       </div>
     </div>
   );

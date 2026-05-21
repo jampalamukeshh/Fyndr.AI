@@ -70,10 +70,10 @@ export default {
         sm: "calc(var(--radius-lg) - 4px)", /* 0.25rem */
       },
       fontFamily: {
-        heading: ['Inter', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
-        caption: ['Inter', 'sans-serif'],
-        data: ['JetBrains Mono', 'monospace'],
+        heading: ['Fraunces', 'serif'],
+        body: ['Manrope', 'sans-serif'],
+        caption: ['Manrope', 'sans-serif'],
+        data: ['IBM Plex Mono', 'monospace'],
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

@@ -40,7 +40,7 @@ const EmptyState = ({ hasApplications, filters, onClearFilters }) => {
       <p className="text-muted-foreground mb-6">
         Start your job search journey by exploring available positions and applying to jobs that match your skills and interests.
       </p>
-      
+
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
         <Link to="/job-search-application-hub" className="btn-primary">
@@ -58,7 +58,7 @@ const EmptyState = ({ hasApplications, filters, onClearFilters }) => {
       </div>
 
       {/* Tips Section */}
-      <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 text-left">
+      <div className="bg-background/70 border border-border backdrop-blur-sm rounded-lg p-6 text-left">
         <h4 className="font-semibold text-foreground mb-4 text-center">
           💡 Tips to get started
         </h4>
@@ -130,27 +130,27 @@ const EmptyState = ({ hasApplications, filters, onClearFilters }) => {
           Quick access to helpful resources:
         </p>
         <div className="flex flex-wrap gap-2 justify-center">
-          <Link 
-            to="/ai-career-coach-chat-interface" 
-            className="text-xs bg-white/60 hover:bg-white/80 px-3 py-1 rounded-full transition-colors"
+          <Link
+            to="/ai-career-coach-chat-interface"
+            className="text-xs bg-muted/60 text-foreground hover:bg-muted/80 px-3 py-1 rounded-full transition-colors"
           >
             💬 Career Coach
           </Link>
-          <Link 
-            to="/interview-practice-video-sessions" 
-            className="text-xs bg-white/60 hover:bg-white/80 px-3 py-1 rounded-full transition-colors"
+          <Link
+            to="/interview-practice-video-sessions"
+            className="text-xs bg-muted/60 text-foreground hover:bg-muted/80 px-3 py-1 rounded-full transition-colors"
           >
             🎥 Practice Interviews
           </Link>
-          <Link 
-            to="/course-detail-learning-interface" 
-            className="text-xs bg-white/60 hover:bg-white/80 px-3 py-1 rounded-full transition-colors"
+          <Link
+            to="/course-detail-learning-interface"
+            className="text-xs bg-muted/60 text-foreground hover:bg-muted/80 px-3 py-1 rounded-full transition-colors"
           >
             📚 Skill Courses
           </Link>
-          <Link 
-            to="/mentorship-platform" 
-            className="text-xs bg-white/60 hover:bg-white/80 px-3 py-1 rounded-full transition-colors"
+          <Link
+            to="/mentorship-platform"
+            className="text-xs bg-muted/60 text-foreground hover:bg-muted/80 px-3 py-1 rounded-full transition-colors"
           >
             👥 Find Mentors
           </Link>

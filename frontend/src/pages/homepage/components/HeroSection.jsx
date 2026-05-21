@@ -4,30 +4,28 @@ import { useNavigate } from 'react-router-dom';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 
-const HeroSection = () => {
+const HeroSection = ({ content }) => {
   const [currentText, setCurrentText] = useState(0);
   const navigate = useNavigate();
 
-  const heroTexts = [
-    "AI-Powered Hiring Revolution",
-    "Smart Recruitment Solutions",
-    "Future of Talent Acquisition"
-  ];
+  const heroTexts = content?.rotatingTitles || [];
 
   useEffect(() => {
+    if (!heroTexts.length) return undefined;
+
     const interval = setInterval(() => {
       setCurrentText((prev) => (prev + 1) % heroTexts.length);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [heroTexts.length]);
 
   const handleGetStarted = () => {
-    navigate('/authentication-login-register');
+    navigate(content?.ctas?.primary?.path || '/authentication-login-register');
   };
 
   const handleLearnMore = () => {
-    navigate('/about-contact-page');
+    navigate(content?.ctas?.secondary?.path || '/about-contact-page');
   };
 
   return (
@@ -84,7 +82,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="glassmorphic rounded-[2rem] p-8 sm:p-12 lg:p-16 elevation-3 border border-white/20 dark:border-white/10"
+          className="glassmorphic rounded-[2rem] p-8 sm:p-12 lg:p-16 elevation-3 border border-border/80"
         >
           {/* Logo and Brand */}
           <motion.div
@@ -101,10 +99,10 @@ const HeroSection = () => {
             </div>
             <div>
               <h1 className="text-3xl sm:text-4xl font-heading font-heading-bold text-foreground tracking-wide">
-                Fyndr.AI
+                {content?.brandName || 'Fyndr.AI'}
               </h1>
               <p className="text-sm text-muted-foreground font-caption">
-                Intelligent Hiring Platform
+                {content?.tagline || 'Intelligent Hiring Platform'}
               </p>
             </div>
           </motion.div>
@@ -119,7 +117,7 @@ const HeroSection = () => {
             className="mb-6"
           >
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-heading-bold text-foreground leading-tight tracking-wide">
-              {heroTexts[currentText]}
+              {heroTexts[currentText] || ''}
             </h2>
           </motion.div>
 
@@ -130,7 +128,7 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-lg sm:text-xl text-muted-foreground font-body leading-relaxed max-w-3xl mx-auto mb-12"
           >
-            Transform your hiring process with AI-powered screening, bias-free interviews, and intelligent candidate matching. Join thousands of companies revolutionizing their recruitment strategy.
+            {content?.subtitle}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -149,7 +147,7 @@ const HeroSection = () => {
               iconSize={20}
               className="glow-primary-light shadow-lg"
             >
-              Get Started Free
+              {content?.ctas?.primary?.label || 'Get Started Free'}
             </Button>
             <Button
               variant="outline"
@@ -160,7 +158,7 @@ const HeroSection = () => {
               iconSize={20}
               className="bg-white/20 dark:bg-slate-800/50 border-white/30 dark:border-slate-600 hover:bg-white/30 dark:hover:bg-slate-700/50"
             >
-              Watch Demo
+              {content?.ctas?.secondary?.label || 'Watch Demo'}
             </Button>
           </motion.div>
 
@@ -171,30 +169,16 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.8 }}
             className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto"
           >
-            <div className="text-center">
-              <div className="text-3xl font-heading font-heading-bold text-primary mb-2">
-                10K+
+            {(content?.stats || []).map((stat) => (
+              <div key={stat.label} className="text-center rounded-[1rem] border border-border/70 bg-card/60 p-4">
+                <div className={`text-3xl font-heading font-heading-bold mb-2 ${stat.tone || 'text-primary'}`}>
+                  {stat.value}
+                </div>
+                <div className="text-sm text-muted-foreground font-caption">
+                  {stat.label}
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground font-caption">
-                Companies Trust Us
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-heading font-heading-bold text-accent mb-2">
-                95%
-              </div>
-              <div className="text-sm text-muted-foreground font-caption">
-                Hiring Success Rate
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-heading font-heading-bold text-success mb-2">
-                50%
-              </div>
-              <div className="text-sm text-muted-foreground font-caption">
-                Time Reduction
-              </div>
-            </div>
+            ))}
           </motion.div>
         </motion.div>
       </div>
@@ -219,7 +203,7 @@ const HeroSection = () => {
           transition={{ duration: 2, repeat: Infinity }}
           className="flex flex-col items-center space-y-2 text-muted-foreground"
         >
-          <span className="text-xs font-caption">Scroll to explore</span>
+          <span className="text-xs font-caption">{content?.scrollHint || 'Scroll to explore'}</span>
           <Icon name="ChevronDown" size={20} />
         </motion.div>
       </motion.div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MainLayout from 'components/layout/MainLayout';
 import SidebarLayout from 'components/layout/SidebarLayout';
 import Icon from 'components/AppIcon';
@@ -8,8 +9,10 @@ import ChatInput from './components/ChatInput';
 import PromptSuggestions from './components/PromptSuggestions';
 import ChatHistory from './components/ChatHistory';
 import { apiRequest } from 'utils/api.js';
+import { chatWithAssistant, previewAssistantAction } from 'services/assistantAPI';
 import ConversationExport from './components/ConversationExport';
 const AICareerCoachChatInterface = () => {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -24,7 +27,9 @@ const AICareerCoachChatInterface = () => {
   const [searchIndex, setSearchIndex] = useState(0);
   const [showRename, setShowRename] = useState(false);
   const [renameValue, setRenameValue] = useState('');
+  const [pendingAction, setPendingAction] = useState(null);
   const messageRefs = useRef({});
+  const messagesContainerRef = useRef(null);
 
   const [conversations, setConversations] = useState([]);
 
@@ -38,9 +43,15 @@ const AICareerCoachChatInterface = () => {
     const id = matches[idx]?.id;
     if (!id) return;
     const el = messageRefs.current[id];
-    if (el && typeof el.scrollIntoView === 'function') {
-      try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { }
-    }
+    const container = messagesContainerRef.current;
+    if (!el || !container) return;
+    try {
+      const targetTop = el.offsetTop - (container.clientHeight / 2) + (el.clientHeight / 2);
+      container.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: 'smooth',
+      });
+    } catch { }
   }, [searchQuery, searchIndex, messages]);
 
   // Load conversations on mount
@@ -84,16 +95,22 @@ const AICareerCoachChatInterface = () => {
 
   // Scroll helper and auto-scroll
   const scrollToBottom = (smooth = false) => {
-    const el = messagesEndRef.current;
-    if (!el) return;
+    const container = messagesContainerRef.current;
+    if (!container) return;
     try {
-      el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
+      if (smooth && typeof container.scrollTo === 'function') {
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+        return;
+      }
+      container.scrollTop = container.scrollHeight;
     } catch { }
   };
   useEffect(() => {
     if (initialLoadRef.current) {
+      // Skip auto-scroll until initial messages hydrate.
+      if (messages.length === 0 && !isTyping) return;
       initialLoadRef.current = false;
-      return; // don't auto-scroll on first load
+      return;
     }
     scrollToBottom(true);
   }, [messages, isTyping]);
@@ -123,6 +140,39 @@ const AICareerCoachChatInterface = () => {
     return null;
   };
 
+  const executeAssistantAction = async (assistantAction) => {
+    if (!assistantAction || !assistantAction.type) return;
+
+    try {
+      const preview = await previewAssistantAction(assistantAction.type, assistantAction.payload || {});
+      if (!preview?.approved) return;
+    } catch {
+      return;
+    }
+
+    const payload = assistantAction.payload || {};
+    if (assistantAction.type === 'navigate' && payload.path) {
+      navigate(payload.path);
+      return;
+    }
+
+    if (assistantAction.type === 'open_job') {
+      if (payload.url) {
+        window.open(payload.url, '_blank', 'noopener,noreferrer');
+      } else if (payload.job_id) {
+        navigate(`/job-search-application-hub?job_id=${payload.job_id}`);
+      }
+      return;
+    }
+
+    if (assistantAction.type === 'start_quick_apply') {
+      const jobId = payload.job_id;
+      if (jobId) {
+        navigate(`/job-search-application-hub?quick_apply=${jobId}`);
+      }
+    }
+  };
+
   const handleSendMessage = async (messageText) => {
     const userMessage = {
       id: Date.now(),
@@ -133,6 +183,7 @@ const AICareerCoachChatInterface = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    setPendingAction(null);
     setIsTyping(true);
 
     try {
@@ -153,16 +204,35 @@ const AICareerCoachChatInterface = () => {
         conversation_id: convId || currentConversationId,
       };
 
-      const resp = await apiRequest('/auth/ai/chat/', 'POST', payload);
+      let aiReplyText = '';
+      let assistantAction = null;
+
+      try {
+        const assistantResp = await chatWithAssistant(messageText, 5);
+        aiReplyText = assistantResp?.assistant?.assistant_reply || '';
+        assistantAction = assistantResp?.assistant?.action || null;
+
+        if (assistantResp?.matches?.length) {
+          const topMatches = assistantResp.matches
+            .slice(0, 3)
+            .map((job) => `- ${job.title} at ${job.company} (${job.score}% match)`)
+            .join('\n');
+          aiReplyText = `${aiReplyText}\n\nTop matches:\n${topMatches}`;
+        }
+      } catch {
+        const resp = await apiRequest('/auth/ai/chat/', 'POST', payload);
+        aiReplyText = resp?.reply || 'Sorry, I could not generate a response.';
+      }
 
       const aiResponse = {
         id: Date.now() + 1,
         type: 'text',
-        content: resp?.reply || 'Sorry, I could not generate a response.',
+        content: aiReplyText || 'Sorry, I could not generate a response.',
         timestamp: new Date(),
         isUser: false,
       };
       setMessages(prev => [...prev, aiResponse]);
+      setPendingAction(assistantAction);
       // Refresh conversations to update last message preview and counts
       try {
         const res = await apiRequest('/auth/ai/chat/conversations/');
@@ -177,8 +247,8 @@ const AICareerCoachChatInterface = () => {
         }));
         setConversations(mapped);
       } catch { }
-      if (resp?.conversation_id && !currentConversationId) {
-        setCurrentConversationId(resp.conversation_id);
+      if (convId && !currentConversationId) {
+        setCurrentConversationId(convId);
         // Keep title if already set via ensureConversation; otherwise derive
         if (!currentConversationTitle || currentConversationTitle === 'New Conversation' || currentConversationTitle === 'Guest Session') {
           setCurrentConversationTitle(messageText.length > 48 ? `${messageText.slice(0, 48)}…` : messageText);
@@ -511,7 +581,7 @@ const AICareerCoachChatInterface = () => {
             {/* Quick Start (now always visible, positioned above input) */}
 
             {/* Messages Area (only this scrolls) */}
-            <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 scrollbar-slim">
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 scrollbar-slim">
               {messages.map((message) => {
                 const isMatch = searchQuery && String(message.content || '').toLowerCase().includes(searchQuery.toLowerCase());
                 const matchList = searchQuery ? messages.filter(m => String(m.content || '').toLowerCase().includes(searchQuery.toLowerCase())) : [];
@@ -549,6 +619,21 @@ const AICareerCoachChatInterface = () => {
               onSelectPrompt={handlePromptSelect}
               onAnalyzeResume={handleAnalyzeResume}
             />
+
+            {pendingAction && pendingAction.type && pendingAction.type !== 'none' && (
+              <div className="px-5 py-3 border-t border-white/10 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-sm flex items-center justify-between gap-3">
+                <div className="text-xs text-muted-foreground">
+                  Suggested action: <span className="font-semibold text-foreground">{pendingAction.type.replaceAll('_', ' ')}</span>
+                </div>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => executeAssistantAction(pendingAction)}
+                >
+                  Execute
+                </Button>
+              </div>
+            )}
 
             {/* Chat Input (fixed at bottom of column) */}
             <ChatInput

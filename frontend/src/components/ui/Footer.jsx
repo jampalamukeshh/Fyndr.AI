@@ -9,29 +9,29 @@ const Footer = () => {
   // Footer links organization
   const footerLinks = {
     product: [
-      { label: 'Features', href: '/about-contact-page#features' },
-      { label: 'Pricing', href: '/about-contact-page#pricing' },
+      { label: 'Features', href: '/homepage' },
+      { label: 'Pricing', href: '/authentication-login-register' },
       { label: 'For Job Seekers', href: '/job-seeker-onboarding-wizard' },
       { label: 'For Recruiters', href: '/recruiter-onboarding-wizard' },
       { label: 'For Companies', href: '/company-onboarding-wizard' },
     ],
     resources: [
-      { label: 'Resource Library', href: '/resource-library' },
+      { label: 'Resource Library', href: '/community-hub' },
       { label: 'Career Coach AI', href: '/ai-career-coach-chat-interface' },
       { label: 'Learning Center', href: '/course-detail-learning-interface' },
-      { label: 'Blog', href: '/resource-library/blog' },
+      { label: 'Blog', href: '/community-hub' },
     ],
     company: [
-      { label: 'About Us', href: '/about-contact-page#about' },
-      { label: 'Careers', href: '/about-contact-page#careers' },
-      { label: 'Contact', href: '/about-contact-page#contact' },
-      { label: 'Partners', href: '/about-contact-page#partners' },
+      { label: 'About Us', href: '/about-contact-page' },
+      { label: 'Careers', href: '/about-contact-page' },
+      { label: 'Contact', href: '/about-contact-page' },
+      { label: 'Partners', href: '/community-hub' },
     ],
     legal: [
-      { label: 'Privacy Policy', href: '/about-contact-page/privacy' },
-      { label: 'Terms of Service', href: '/about-contact-page/terms' },
-      { label: 'Cookie Policy', href: '/about-contact-page/cookies' },
-      { label: 'Accessibility', href: '/about-contact-page/accessibility' },
+      { label: 'Privacy Policy', href: '/about-contact-page' },
+      { label: 'Terms of Service', href: '/about-contact-page' },
+      { label: 'Cookie Policy', href: '/about-contact-page' },
+      { label: 'Accessibility', href: '/about-contact-page' },
     ],
   };
 
@@ -44,7 +44,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-background border-t border-border mt-auto py-12 px-4 sm:px-6 lg:px-8">
+    <footer className="bg-background border-t border-border mt-auto py-12 px-4 sm:px-6 lg:px-8 rounded-t-3xl">
       <div className="max-w-7xl mx-auto">
         {/* Footer top section with logo and links */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 pb-8">
@@ -109,19 +109,19 @@ const Footer = () => {
 
           <div className="mt-4 sm:mt-0 flex flex-wrap justify-center space-x-4">
             <Link
-              to="/about-contact-page/privacy"
+              to="/about-contact-page"
               className="text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               Privacy Policy
             </Link>
             <Link
-              to="/about-contact-page/terms"
+              to="/about-contact-page"
               className="text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               Terms of Service
             </Link>
             <Link
-              to="/about-contact-page/cookies"
+              to="/about-contact-page"
               className="text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               Cookie Policy

@@ -256,13 +256,13 @@ const JobApplications = () => {
     return (
       <div className="mb-4">
         {gmailStatus.connected ? (
-          <div className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2 inline-block">
+          <div className="text-xs text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded px-3 py-2 inline-block">
             Gmail Connected — we’ll auto-confirm applications from your inbox.
           </div>
         ) : (
           <button
             onClick={connectGmail}
-            className="text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded px-3 py-2"
+            className="text-xs text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded px-3 py-2"
           >
             Connect Gmail to auto-confirm application emails
           </button>
@@ -397,7 +397,7 @@ const JobApplications = () => {
         <Helmet>
           <title>My Applications - Fyndr.AI</title>
         </Helmet>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="glass-card p-8 rounded-xl">
@@ -417,7 +417,7 @@ const JobApplications = () => {
         <Helmet>
           <title>My Applications - Fyndr.AI</title>
         </Helmet>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="glass-card p-8 rounded-xl text-center">
@@ -445,7 +445,7 @@ const JobApplications = () => {
         <meta name="description" content="Track and manage your job applications with Fyndr.AI's comprehensive application dashboard." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4 py-8">
           {/* Header Section */}
           <div className="mb-8">
@@ -459,7 +459,7 @@ const JobApplications = () => {
                     Track and manage all your job applications in one place
                   </p>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className={`text-xs px-2 py-1 rounded border ${gmailStatus.connected ? 'border-green-500 text-green-600' : 'border-gray-400 text-gray-600'}`}>
+                    <span className={`text-xs px-2 py-1 rounded border ${gmailStatus.connected ? 'border-green-500 text-green-600 dark:text-green-300' : 'border-gray-400 text-gray-600 dark:border-gray-600 dark:text-gray-300'}`}>
                       {gmailStatus.loading ? 'Checking Gmail…' : gmailStatus.connected ? 'Gmail Connected' : 'Gmail Not Connected'}
                     </span>
                     {!gmailStatus.connected && !gmailStatus.loading && (
@@ -475,7 +475,7 @@ const JobApplications = () => {
                   <div className="flex items-center space-x-3">
                     <div className="flex items-center space-x-2">
                       <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      <span className="text-sm font-medium">
+                      <span className="text-sm font-medium text-foreground">
                         {isConnected ? 'Connected' : 'Disconnected'}
                       </span>
                     </div>
@@ -484,14 +484,14 @@ const JobApplications = () => {
                       onClick={handleRealTimeModeToggle}
                       className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${realTimeMode
                         ? 'bg-green-500 text-white hover:bg-green-600'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600'
                         }`}
                     >
                       {realTimeMode ? '⚡ Live Tracking' : '🔄 Enable Live Tracking'}
                     </button>
 
                     {realTimeMode && Object.keys(applicationUpdates).length > 0 && (
-                      <div className="text-sm text-green-600 font-medium">
+                      <div className="text-sm text-green-600 dark:text-green-300 font-medium">
                         {Object.keys(applicationUpdates).length} live updates
                       </div>
                     )}
@@ -541,7 +541,7 @@ const JobApplications = () => {
                   <h2 className="text-lg font-semibold text-foreground">
                     {filteredApplications.length} Application{filteredApplications.length !== 1 ? 's' : ''}
                   </h2>
-                  <select className="bg-white/80 backdrop-blur-sm border border-border rounded-lg px-3 py-1 text-sm">
+                  <select className="bg-background/80 text-foreground backdrop-blur-sm border border-border rounded-lg px-3 py-1 text-sm">
                     <option>Sort by Date Applied</option>
                     <option>Sort by Company</option>
                     <option>Sort by Status</option>

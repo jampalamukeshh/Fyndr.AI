@@ -12,6 +12,8 @@ from django.db.models import Count, Q, Avg
 from django.db.models.functions import TruncDate, TruncWeek, TruncMonth
 from django.utils import timezone
 
+from jobapplier.models import JobApplication
+
 logger = logging.getLogger(__name__)
 
 
@@ -22,6 +24,12 @@ class ApplicationAnalytics:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+
+    def _base_queryset(self, user_profile, date_filter: Q):
+        queryset = JobApplication.objects.filter(date_filter)
+        if user_profile and getattr(user_profile, "user", None):
+            queryset = queryset.filter(user=user_profile.user)
+        return queryset
     
     def get_application_counts(self, 
                              user_profile=None, 
@@ -41,19 +49,14 @@ class ApplicationAnalytics:
             Dict with application counts and percentages
         """
         try:
-            from jobapplier.models import Application
-            
             # Calculate date range
             if start_date and end_date:
                 date_filter = Q(applied_at__gte=start_date, applied_at__lte=end_date)
             else:
                 start_date, end_date = self._get_date_range(time_range)
                 date_filter = Q(applied_at__gte=start_date, applied_at__lte=end_date)
-            
-            # Base queryset
-            queryset = Application.objects.filter(date_filter)
-            if user_profile:
-                queryset = queryset.filter(user_profile=user_profile)
+
+            queryset = self._base_queryset(user_profile, date_filter)
             
             # Count by status
             status_counts = queryset.values('status').annotate(count=Count('status'))
@@ -123,14 +126,10 @@ class ApplicationAnalytics:
             Dict with conversion rates and funnel metrics
         """
         try:
-            from jobapplier.models import Application
-            
             start_date, end_date = self._get_date_range(time_range)
             date_filter = Q(applied_at__gte=start_date, applied_at__lte=end_date)
-            
-            queryset = Application.objects.filter(date_filter)
-            if user_profile:
-                queryset = queryset.filter(user_profile=user_profile)
+
+            queryset = self._base_queryset(user_profile, date_filter)
             
             # Count applications at each stage
             total_applied = queryset.count()
@@ -200,14 +199,10 @@ class ApplicationAnalytics:
             Dict with ranked job sources and their success metrics
         """
         try:
-            from jobapplier.models import Application
-            
             start_date, end_date = self._get_date_range(time_range)
             date_filter = Q(applied_at__gte=start_date, applied_at__lte=end_date)
-            
-            queryset = Application.objects.filter(date_filter)
-            if user_profile:
-                queryset = queryset.filter(user_profile=user_profile)
+
+            queryset = self._base_queryset(user_profile, date_filter)
             
             # Group by job source (assuming job has a source field)
             sources = {}
@@ -293,14 +288,10 @@ class ApplicationAnalytics:
             Dict with timeline data points
         """
         try:
-            from jobapplier.models import Application
-            
             start_date, end_date = self._get_date_range(time_range)
             date_filter = Q(applied_at__gte=start_date, applied_at__lte=end_date)
-            
-            queryset = Application.objects.filter(date_filter)
-            if user_profile:
-                queryset = queryset.filter(user_profile=user_profile)
+
+            queryset = self._base_queryset(user_profile, date_filter)
             
             # Choose appropriate truncation function
             if granularity == "week":
@@ -314,7 +305,7 @@ class ApplicationAnalytics:
             timeline_data = (queryset
                            .annotate(period=trunc_func('applied_at'))
                            .values('period')
-                           .annotate(total=Count('application_id'))
+                           .annotate(total=Count('id'))
                            .order_by('period'))
             
             # Format timeline data

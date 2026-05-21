@@ -46,10 +46,10 @@ const ApplicationFilters = ({ filters, onFilterChange, applications }) => {
     });
   };
 
-  const hasActiveFilters = filters.status !== 'all' || 
-                          filters.company !== 'all' || 
-                          filters.dateRange !== 'all' || 
-                          filters.searchQuery !== '';
+  const hasActiveFilters = filters.status !== 'all' ||
+    filters.company !== 'all' ||
+    filters.dateRange !== 'all' ||
+    filters.searchQuery !== '';
 
   return (
     <div className="mb-8">
@@ -79,7 +79,7 @@ const ApplicationFilters = ({ filters, onFilterChange, applications }) => {
                 placeholder="Search jobs, companies..."
                 value={filters.searchQuery}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder-muted-foreground"
+                className="w-full pl-10 pr-4 py-2 bg-background/80 text-foreground backdrop-blur-sm border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder-muted-foreground"
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <span className="text-muted-foreground">🔍</span>
@@ -95,7 +95,7 @@ const ApplicationFilters = ({ filters, onFilterChange, applications }) => {
             <select
               value={filters.status}
               onChange={handleStatusChange}
-              className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full px-3 py-2 bg-background/80 text-foreground backdrop-blur-sm border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             >
               {statusOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -113,7 +113,7 @@ const ApplicationFilters = ({ filters, onFilterChange, applications }) => {
             <select
               value={filters.company}
               onChange={handleCompanyChange}
-              className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full px-3 py-2 bg-background/80 text-foreground backdrop-blur-sm border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             >
               <option value="all">All Companies</option>
               {uniqueCompanies.map(company => (
@@ -132,7 +132,7 @@ const ApplicationFilters = ({ filters, onFilterChange, applications }) => {
             <select
               value={filters.dateRange}
               onChange={handleDateRangeChange}
-              className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full px-3 py-2 bg-background/80 text-foreground backdrop-blur-sm border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             >
               {dateRangeOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -150,11 +150,10 @@ const ApplicationFilters = ({ filters, onFilterChange, applications }) => {
             <button
               key={option.value}
               onClick={() => onFilterChange({ status: option.value })}
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                filters.status === option.value
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${filters.status === option.value
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-white/60 text-muted-foreground hover:bg-white/80'
-              }`}
+                  : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
+                }`}
             >
               {option.label}
               <span className="bg-white/20 text-xs px-1 rounded">

@@ -6,6 +6,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 from . import bulk_apply
+from . import assistant_views
 
 app_name = 'jobapplier'
 
@@ -41,6 +42,12 @@ urlpatterns = [
     
     # Dashboard and analytics
     path('dashboard/', views.dashboard_data, name='dashboard_data'),
+
+    # Semantic matching and assistant orchestration
+    path('semantic-matches/', assistant_views.semantic_matches, name='semantic_matches'),
+    path('assistant/chat/', assistant_views.assistant_chat, name='assistant_chat'),
+    path('assistant/action-preview/', assistant_views.assistant_action_preview, name='assistant_action_preview'),
+
     # Recruiter endpoints
     path('recruiter/applicants/', views.recruiter_applicants, name='recruiter_applicants'),
     path('recruiter/applications/<uuid:application_id>/events/', views.recruiter_application_events, name='recruiter_application_events'),

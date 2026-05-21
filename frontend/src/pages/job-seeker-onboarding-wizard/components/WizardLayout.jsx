@@ -24,9 +24,9 @@ const WizardLayout = ({ children, onSaveAndExit, showSaveOption = true }) => {
         <div className="flex items-center justify-center space-x-4">
           <span>© {new Date().getFullYear()} Fyndr.AI</span>
           <span>•</span>
-          <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+          <a href="/about-contact-page" className="hover:text-foreground transition-colors">Privacy Policy</a>
           <span>•</span>
-          <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
+          <a href="/about-contact-page" className="hover:text-foreground transition-colors">Terms of Service</a>
         </div>
       </footer>
     </div>

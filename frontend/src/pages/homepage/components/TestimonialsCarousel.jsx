@@ -4,75 +4,13 @@ import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import Image from 'components/AppImage';
 
-const TestimonialsCarousel = () => {
+const TestimonialsCarousel = ({ content }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  const testimonials = [
-    {
-      id: 1,
-      name: "Sarah Chen",
-      role: "Senior Software Engineer",
-      company: "TechCorp",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b332c3c8?w=150&h=150&fit=crop&crop=face",
-      content: `Fyndr.AI transformed my job search completely. The AI-powered matching connected me with opportunities I never would have found otherwise. The interview preparation tools were incredibly helpful, and I landed my dream job within 3 weeks!`,
-      rating: 5,
-      skills: ["React", "Node.js", "Python", "AWS"],
-      outcome: "Hired in 3 weeks",
-      type: "job-seeker"
-    },
-    {
-      id: 2,
-      name: "Michael Rodriguez",
-      role: "Head of Talent Acquisition",
-      company: "InnovateLabs",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      content: `As a recruiter, Fyndr.AI has been a game-changer. The bias-free screening and intelligent candidate matching have improved our hiring quality by 40%. The platform saves us countless hours while finding better candidates.`,
-      rating: 5,
-      skills: ["Talent Acquisition", "AI Screening", "Team Building"],
-      outcome: "40% better quality",
-      type: "recruiter"
-    },
-    {
-      id: 3,
-      name: "Emily Watson",
-      role: "VP of Engineering",
-      company: "StartupXYZ",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      content: `Fyndr.AI helped us scale our engineering team from 5 to 50 people in just 6 months. The analytics dashboard gives us incredible insights into our hiring funnel, and the collaboration tools keep our entire team aligned.`,
-      rating: 5,
-      skills: ["Engineering Leadership", "Team Scaling", "Analytics"],
-      outcome: "10x team growth",
-      type: "employer"
-    },
-    {
-      id: 4,
-      name: "David Kim",
-      role: "Product Manager",
-      company: "FinanceFlow",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      content: `The video interview feature with AI insights is phenomenal. It helped me prepare better and understand my strengths. The real-time feedback during practice sessions boosted my confidence significantly.`,
-      rating: 5,
-      skills: ["Product Management", "Strategy", "Analytics"],
-      outcome: "Confidence boost",
-      type: "job-seeker"
-    },
-    {
-      id: 5,
-      name: "Lisa Thompson",
-      role: "HR Director",
-      company: "GlobalTech",
-      avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
-      content: `The compliance tracking and bias-free hiring features ensure we meet all diversity goals while maintaining high standards. Fyndr.AI has made our hiring process more efficient and equitable.`,
-      rating: 5,
-      skills: ["HR Management", "Compliance", "Diversity"],
-      outcome: "100% compliance",
-      type: "employer"
-    }
-  ];
+  const testimonials = content?.entries || [];
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || !testimonials.length) return undefined;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length);
@@ -114,7 +52,11 @@ const TestimonialsCarousel = () => {
     }
   };
 
-  const currentTestimonial = testimonials[currentIndex];
+  const currentTestimonial = testimonials[currentIndex] || testimonials[0];
+
+  if (!currentTestimonial) {
+    return null;
+  }
 
   return (
     <section className="py-20 bg-gradient-to-b from-background to-card/50">
@@ -128,10 +70,10 @@ const TestimonialsCarousel = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-heading-bold text-foreground mb-4 tracking-wide">
-            Success Stories
+            {content?.heading || 'Success Stories'}
           </h2>
           <p className="text-lg text-muted-foreground font-body leading-relaxed max-w-2xl mx-auto">
-            Hear from thousands of professionals who transformed their careers and hiring processes with Fyndr.AI.
+            {content?.subheading}
           </p>
         </motion.div>
 
@@ -144,7 +86,7 @@ const TestimonialsCarousel = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               transition={{ duration: 0.5 }}
-              className="glassmorphic rounded-[1.25rem] p-8 sm:p-12 elevation-3"
+              className="glassmorphic rounded-[1.25rem] border border-border/80 p-8 sm:p-12 elevation-3"
             >
               {/* Testimonial Header */}
               <div className="flex items-center justify-between mb-8">
@@ -258,30 +200,16 @@ const TestimonialsCarousel = () => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
         >
-          <div>
-            <div className="text-3xl font-heading font-heading-bold text-primary mb-2">
-              4.9/5
+          {(content?.stats || []).map((stat) => (
+            <div key={stat.label} className="rounded-[1rem] border border-border/70 bg-card/50 p-5">
+              <div className={`text-3xl font-heading font-heading-bold mb-2 ${stat.tone || 'text-primary'}`}>
+                {stat.value}
+              </div>
+              <div className="text-sm text-muted-foreground font-caption">
+                {stat.label}
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground font-caption">
-              Average Rating
-            </div>
-          </div>
-          <div>
-            <div className="text-3xl font-heading font-heading-bold text-accent mb-2">
-              25K+
-            </div>
-            <div className="text-sm text-muted-foreground font-caption">
-              Success Stories
-            </div>
-          </div>
-          <div>
-            <div className="text-3xl font-heading font-heading-bold text-success mb-2">
-              98%
-            </div>
-            <div className="text-sm text-muted-foreground font-caption">
-              Satisfaction Rate
-            </div>
-          </div>
+          ))}
         </motion.div>
       </div>
 

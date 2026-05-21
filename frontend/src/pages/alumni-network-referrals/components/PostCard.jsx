@@ -3,7 +3,7 @@ import Icon from 'components/AppIcon';
 import Image from 'components/AppImage';
 import Button from 'components/ui/Button';
 
-const PostCard = ({ post, onLike, onComment, onShare }) => {
+const PostCard = ({ post, onLike, onComment, onShare, onMessageAuthor }) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isLiked, setIsLiked] = useState(post.isLiked || false);
@@ -85,6 +85,18 @@ const PostCard = ({ post, onLike, onComment, onShare }) => {
 
         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
           <Icon name="MoreHorizontal" size={20} />
+        </Button>
+      </div>
+
+      <div className="mb-4 -mt-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onMessageAuthor?.(post.author)}
+          className="text-xs"
+        >
+          <Icon name="MessageCircle" size={14} className="mr-2" />
+          Message {post.author.name}
         </Button>
       </div>
 

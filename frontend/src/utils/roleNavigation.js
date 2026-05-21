@@ -9,10 +9,10 @@ import { ROUTES_A, ROUTES_B, ROUTES_C, ROUTES_D } from './routes';
 export const JOB_SEEKER_NAV = {
   main: [
     {
-      label: 'Home',
-      path: ROUTES_A.HOME,
-      icon: 'Home',
-      description: 'Your dashboard and overview'
+      label: 'Workspace',
+      path: '/workspace',
+      icon: 'LayoutDashboard',
+      description: 'Your premium command center'
     },
     {
       label: 'AI Job Feed',
@@ -33,13 +33,13 @@ export const JOB_SEEKER_NAV = {
       path: ROUTES_C.CAREER_COACH,
       description: 'Get personalized career advice from our AI',
       icon: 'MessageSquare'
-    },
-    {
-      label: 'Resume Builder',
-      path: ROUTES_B.RESUME_BUILDER,
-      description: 'Create an ATS-optimized resume with AI assistance',
-      icon: 'FileText'
     }
+    // {
+    //   label: 'Resume Builder',
+    //   path: ROUTES_B.RESUME_BUILDER,
+    //   description: 'Create an ATS-optimized resume with AI assistance',
+    //   icon: 'FileText'
+    // }
   ],
   profile: [
     {
@@ -73,10 +73,10 @@ export const JOB_SEEKER_NAV = {
 export const RECRUITER_NAV = {
   main: [
     {
-      label: 'Dashboard',
-      path: ROUTES_C.RECRUITER_DASHBOARD,
-      icon: 'BarChart3',
-      description: 'Recruitment pipeline overview'
+      label: 'Workspace',
+      path: '/workspace',
+      icon: 'LayoutDashboard',
+      description: 'Recruiter command center'
     },
     {
       label: 'Candidates',
@@ -155,10 +155,10 @@ export const RECRUITER_NAV = {
 export const EMPLOYER_NAV = {
   main: [
     {
-      label: 'Dashboard',
-      path: ROUTES_C.RECRUITER_DASHBOARD,
-      icon: 'BarChart3',
-      description: 'Company hiring overview'
+      label: 'Workspace',
+      path: '/workspace',
+      icon: 'LayoutDashboard',
+      description: 'Company hiring command center'
     },
     {
       label: 'AI Job Feed',
@@ -194,19 +194,19 @@ export const EMPLOYER_NAV = {
   resources: [
     {
       label: 'Employer Branding',
-      path: ROUTES_D.RESOURCE_LIBRARY,
+      path: '/community-hub',
       description: 'Build your company brand',
       icon: 'Award'
     },
     {
       label: 'Virtual Career Fair',
-      path: ROUTES_D.CAREER_FAIR,
+      path: '/community-hub',
       description: 'Host virtual recruitment events',
       icon: 'Globe'
     },
     {
       label: 'Best Practices',
-      path: ROUTES_D.RESOURCE_LIBRARY,
+      path: '/community-hub',
       description: 'Hiring and recruitment guides',
       icon: 'Library'
     }
@@ -243,10 +243,10 @@ export const EMPLOYER_NAV = {
 export const ADMINISTRATOR_NAV = {
   main: [
     {
-      label: 'System Dashboard',
-      path: ROUTES_C.ADMIN_DASHBOARD,
-      icon: 'Monitor',
-      description: 'System overview and management'
+      label: 'Workspace',
+      path: '/workspace',
+      icon: 'LayoutDashboard',
+      description: 'Platform operations command center'
     },
     {
       label: 'User Management',
@@ -256,7 +256,7 @@ export const ADMINISTRATOR_NAV = {
     },
     {
       label: 'Content Management',
-      path: ROUTES_D.RESOURCE_LIBRARY,
+      path: '/community-hub',
       icon: 'FileText',
       description: 'Manage platform content'
     },
@@ -307,10 +307,10 @@ export const ADMINISTRATOR_NAV = {
 export const COMPANY_NAV = {
   main: [
     {
-      label: 'Dashboard',
-      path: '/company-dashboard-pipeline-management',
-      icon: 'Home',
-      description: 'Your recruitment overview'
+      label: 'Workspace',
+      path: '/workspace',
+      icon: 'LayoutDashboard',
+      description: 'Company hiring command center'
     },
     {
       label: 'Candidates',

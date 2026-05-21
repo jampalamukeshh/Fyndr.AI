@@ -5,50 +5,12 @@ import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import Image from 'components/AppImage';
 
-const AboutSection = () => {
+const AboutSection = ({ content }) => {
   const navigate = useNavigate();
-
-  const teamMembers = [
-    {
-      name: "Alex Johnson",
-      role: "CEO & Co-Founder",
-      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face",
-      linkedin: "https://linkedin.com/in/alexjohnson",
-      expertise: ["AI Strategy", "Product Vision", "Leadership"]
-    },
-    {
-      name: "Sarah Kim",
-      role: "CTO & Co-Founder",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face",
-      linkedin: "https://linkedin.com/in/sarahkim",
-      expertise: ["Machine Learning", "System Architecture", "Engineering"]
-    },
-    {
-      name: "Michael Chen",
-      role: "Head of AI Research",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      linkedin: "https://linkedin.com/in/michaelchen",
-      expertise: ["Deep Learning", "NLP", "Computer Vision"]
-    },
-    {
-      name: "Emily Rodriguez",
-      role: "VP of Product",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b332c3c8?w=150&h=150&fit=crop&crop=face",
-      linkedin: "https://linkedin.com/in/emilyrodriguez",
-      expertise: ["Product Strategy", "UX Design", "User Research"]
-    }
-  ];
-
-  const missionKeywords = [
-    { text: "revolutionize", color: "text-primary" },
-    { text: "hiring", color: "text-accent" },
-    { text: "AI-powered", color: "text-success" },
-    { text: "bias-free", color: "text-warning" },
-    { text: "intelligent", color: "text-primary" }
-  ];
+  const teamMembers = content?.team || [];
 
   const handleLearnMore = () => {
-    navigate('/about-contact-page');
+    navigate(content?.aboutCta?.path || '/about-contact-page');
   };
 
   const containerVariants = {
@@ -85,10 +47,10 @@ const AboutSection = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-heading-bold text-foreground mb-4 tracking-wide">
-            About Fyndr.AI
+            {content?.heading || 'About Fyndr.AI'}
           </h2>
           <p className="text-lg text-muted-foreground font-body leading-relaxed max-w-3xl mx-auto">
-            We're on a mission to transform the future of hiring through artificial intelligence and human-centered design.
+            {content?.subheading}
           </p>
         </motion.div>
 
@@ -98,71 +60,36 @@ const AboutSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="glassmorphic rounded-[1.25rem] p-8 sm:p-12 elevation-2 mb-16"
+          className="glassmorphic rounded-[1.25rem] border border-border/80 p-8 sm:p-12 elevation-2 mb-16"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h3 className="text-2xl font-heading font-heading-semibold text-foreground mb-6 tracking-wide">
-                Our Mission
+                {content?.missionHeading || 'Our Mission'}
               </h3>
               <p className="text-lg text-muted-foreground font-body leading-relaxed mb-6">
-                To <span className="text-primary font-body-medium">revolutionize</span> the{' '}
-                <span className="text-accent font-body-medium">hiring</span> process through{' '}
-                <span className="text-success font-body-medium">AI-powered</span> solutions that eliminate bias, enhance efficiency, and create{' '}
-                <span className="text-warning font-body-medium">bias-free</span> opportunities for everyone.
+                {content?.missionBody}
               </p>
               <p className="text-base text-muted-foreground font-body leading-relaxed">
-                We believe that the right talent should connect with the right opportunities, regardless of background, location, or traditional barriers. Our{' '}
-                <span className="text-primary font-body-medium">intelligent</span> platform makes this vision a reality.
+                {content?.missionDetail}
               </p>
             </div>
             <div className="relative">
-              <div className="glassmorphic rounded-[1.25rem] p-8 elevation-1">
+              <div className="glassmorphic rounded-[1.25rem] border border-border/70 p-8 elevation-1">
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-[1.25rem] flex items-center justify-center mx-auto mb-3 glow-primary">
-                      <Icon name="Target" size={20} color="white" />
+                  {(content?.impactStats || []).map((stat) => (
+                    <div key={stat.label} className="text-center rounded-[1rem] border border-border/60 bg-card/60 p-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-[1.25rem] flex items-center justify-center mx-auto mb-3 glow-primary">
+                        <Icon name={stat.icon} size={20} color="white" />
+                      </div>
+                      <div className={`text-2xl font-heading font-heading-bold mb-1 ${stat.tone || 'text-primary'}`}>
+                        {stat.value}
+                      </div>
+                      <div className="text-xs text-muted-foreground font-caption">
+                        {stat.label}
+                      </div>
                     </div>
-                    <div className="text-2xl font-heading font-heading-bold text-primary mb-1">
-                      100M+
-                    </div>
-                    <div className="text-xs text-muted-foreground font-caption">
-                      Profiles Analyzed
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent/80 rounded-[1.25rem] flex items-center justify-center mx-auto mb-3 glow-accent">
-                      <Icon name="Zap" size={20} color="white" />
-                    </div>
-                    <div className="text-2xl font-heading font-heading-bold text-accent mb-1">
-                      50K+
-                    </div>
-                    <div className="text-xs text-muted-foreground font-caption">
-                      Companies Served
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-success to-success/80 rounded-[1.25rem] flex items-center justify-center mx-auto mb-3 glow-primary">
-                      <Icon name="Users" size={20} color="white" />
-                    </div>
-                    <div className="text-2xl font-heading font-heading-bold text-success mb-1">
-                      1M+
-                    </div>
-                    <div className="text-xs text-muted-foreground font-caption">
-                      Successful Hires
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-warning to-warning/80 rounded-[1.25rem] flex items-center justify-center mx-auto mb-3">
-                      <Icon name="Award" size={20} color="white" />
-                    </div>
-                    <div className="text-2xl font-heading font-heading-bold text-warning mb-1">
-                      99%
-                    </div>
-                    <div className="text-xs text-muted-foreground font-caption">
-                      Satisfaction Rate
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -182,10 +109,10 @@ const AboutSection = () => {
             className="text-center mb-12"
           >
             <h3 className="text-2xl font-heading font-heading-semibold text-foreground mb-4 tracking-wide">
-              Meet Our Team
+              {content?.teamHeading || 'Meet Our Team'}
             </h3>
             <p className="text-base text-muted-foreground font-body leading-relaxed max-w-2xl mx-auto">
-              Our diverse team of AI experts, engineers, and hiring professionals are passionate about creating the future of recruitment.
+              {content?.teamSubheading}
             </p>
           </motion.div>
 
@@ -195,7 +122,7 @@ const AboutSection = () => {
                 key={index}
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
-                className={`glassmorphic rounded-[1.25rem] p-6 elevation-2 hover:elevation-3 spring-transition text-center group stagger-${index + 1}`}
+                className={`glassmorphic rounded-[1.25rem] border border-border/80 p-6 elevation-2 hover:elevation-3 spring-transition text-center group stagger-${index + 1}`}
               >
                 <div className="relative mb-4">
                   <div className="w-20 h-20 rounded-full overflow-hidden mx-auto ring-2 ring-primary/20 group-hover:ring-primary/40 spring-transition">
@@ -239,17 +166,17 @@ const AboutSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="glassmorphic rounded-[1.25rem] p-8 sm:p-12 elevation-2 text-center"
+          className="glassmorphic rounded-[1.25rem] border border-border/80 p-8 sm:p-12 elevation-2 text-center"
         >
           <div className="max-w-3xl mx-auto">
             <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-[1.25rem] flex items-center justify-center mx-auto mb-6 glow-primary">
               <Icon name="Eye" size={28} color="white" />
             </div>
             <h3 className="text-2xl font-heading font-heading-semibold text-foreground mb-6 tracking-wide">
-              Our Vision
+              {content?.visionHeading || 'Our Vision'}
             </h3>
             <p className="text-lg text-muted-foreground font-body leading-relaxed mb-8">
-              A world where every person has equal access to opportunities, where hiring decisions are based purely on merit and potential, and where AI serves as a bridge to connect talent with purpose.
+              {content?.visionBody}
             </p>
             <Button
               variant="default"
@@ -260,7 +187,7 @@ const AboutSection = () => {
               iconSize={20}
               className="glow-primary"
             >
-              Learn More About Us
+              {content?.aboutCta?.label || 'Learn More About Us'}
             </Button>
           </div>
         </motion.div>

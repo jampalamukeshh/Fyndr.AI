@@ -6,7 +6,7 @@ import Input from 'components/ui/Input';
 import Select from 'components/ui/Select';
 import LocationInput from 'components/ui/LocationInput';
 
-const AlumniDirectory = ({ onProfileClick }) => {
+const AlumniDirectory = ({ onProfileClick, onMessageClick }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCompany, setSelectedCompany] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
@@ -219,7 +219,7 @@ const AlumniDirectory = ({ onProfileClick }) => {
               >
                 View Profile
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={() => onMessageClick?.(alumni)}>
                 <Icon name="MessageCircle" size={16} />
               </Button>
             </div>
@@ -261,6 +261,14 @@ const AlumniDirectory = ({ onProfileClick }) => {
             onClick={() => onProfileClick(alumni)}
           >
             Connect
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onMessageClick?.(alumni)}
+            title={`Message ${alumni.name}`}
+          >
+            <Icon name="MessageCircle" size={16} />
           </Button>
         </div>
       </div>

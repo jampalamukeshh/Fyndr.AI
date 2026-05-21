@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import PostCard from './components/PostCard';
@@ -8,15 +9,24 @@ import AlumniDirectory from './components/AlumniDirectory';
 import ReferralTracker from './components/ReferralTracker';
 import ProfileModal from './components/ProfileModal';
 import RequestReferralModal from './components/RequestReferralModal';
+import CommunityChatPanel from './components/CommunityChatPanel';
 
 const AlumniNetworkReferrals = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('feed');
   const [posts, setPosts] = useState([]);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isRequestReferralOpen, setIsRequestReferralOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [activeChatRecipient, setActiveChatRecipient] = useState(null);
   const [currentLanguage, setCurrentLanguage] = useState('en');
+
+  const currentUser = {
+    id: 'current-user',
+    name: 'John Doe',
+    role: 'job_seeker',
+  };
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') || 'en';
@@ -154,6 +164,16 @@ const AlumniNetworkReferrals = () => {
     console.log('Sharing post:', postId);
   };
 
+  const handleMessagePerson = (person) => {
+    if (!person) return;
+    setActiveChatRecipient({
+      id: person.id || person.name,
+      name: person.name,
+      title: person.title || '',
+      company: person.company || '',
+    });
+  };
+
   const handleProfileClick = (profile) => {
     setSelectedProfile(profile);
     setIsProfileModalOpen(true);
@@ -282,6 +302,7 @@ const AlumniNetworkReferrals = () => {
                       onLike={handleLike}
                       onComment={handleComment}
                       onShare={handleShare}
+                      onMessageAuthor={handleMessagePerson}
                     />
                   ))}
                 </div>
@@ -301,11 +322,11 @@ const AlumniNetworkReferrals = () => {
                       <Icon name="UserPlus" size={16} className="mr-3" />
                       Request Referral
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab('directory')}>
                       <Icon name="Search" size={16} className="mr-3" />
                       Find Alumni
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/hackathons-competitions')}>
                       <Icon name="Calendar" size={16} className="mr-3" />
                       Upcoming Events
                     </Button>
@@ -346,25 +367,47 @@ const AlumniNetworkReferrals = () => {
                           <p className="font-medium text-foreground text-sm">{connection.name}</p>
                           <p className="text-xs text-muted-foreground">{connection.title}</p>
                         </div>
-                        <Button variant="ghost" size="sm">
-                          <Icon name="MessageCircle" size={14} />
+                        <Button variant="ghost" size="sm" onClick={() => handleMessagePerson(connection)}>
+                          Message
                         </Button>
                       </div>
                     ))}
                   </div>
                 </div>
+
+                {activeChatRecipient && (
+                  <CommunityChatPanel
+                    currentUser={currentUser}
+                    activeRecipient={activeChatRecipient}
+                    onClose={() => setActiveChatRecipient(null)}
+                  />
+                )}
               </div>
             </div>
           )}
 
           {activeTab === 'directory' && (
-            <AlumniDirectory onProfileClick={handleProfileClick} />
+            <AlumniDirectory onProfileClick={handleProfileClick} onMessageClick={handleMessagePerson} />
           )}
 
           {activeTab === 'referrals' && (
-            <ReferralTracker onRequestReferral={handleRequestReferral} />
+            <ReferralTracker onRequestReferral={handleRequestReferral} onMessagePerson={handleMessagePerson} />
           )}
         </motion.div>
+
+        {(activeTab === 'directory' || activeTab === 'referrals') && activeChatRecipient && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 max-w-3xl"
+          >
+            <CommunityChatPanel
+              currentUser={currentUser}
+              activeRecipient={activeChatRecipient}
+              onClose={() => setActiveChatRecipient(null)}
+            />
+          </motion.div>
+        )}
       </div>
 
       {/* Modals */}
